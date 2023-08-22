@@ -4,7 +4,9 @@ const LeadController = require ('../controller/lead.js');
 
 const router = express.Router();
 
+//Get All Lead
 router.get('/', LeadController.getAllLead);
-router.post('/',LeadController.insertLead);
+//Register Lead
+router.post('/',LeadController.registerLead);
 
 module.exports = router;
