@@ -1,10 +1,9 @@
-const leadModel = require('../models/lead');
-const getAllLead = async (req,res) => {
+const salesModel = require('../models/salesperson');
+const getAllSales = async (req,res) => {
     try {
-        const [data] = await leadModel.getAllLead();
-        
+        const [data] = await salesModel.getAllSales();
         res.json({
-            message : 'Get lead success',
+            message : 'Get All Salesperson Sukses',
             data : data
         })
     } catch (error) {
@@ -15,10 +14,10 @@ const getAllLead = async (req,res) => {
     }
 }
 
-const registerLead = async (req,res) => {
+const registerSales = async (req,res) => {
     const {body} = req;
     try {
-        await leadModel.registerLead(body);
+        await salesModel.registerSales(body);
         res.status(200).json({
             message: "Register Berhasil",
         })
@@ -30,6 +29,6 @@ const registerLead = async (req,res) => {
     }
 }
 module.exports = {
-    getAllLead,
-    registerLead
+    getAllSales,
+    registerSales
 }
