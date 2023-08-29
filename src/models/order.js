@@ -26,26 +26,30 @@ const inputOrderDetail = (body) => {
     return dbpool.execute(query,data);
 }
 
-function generateOrderNumber(callback) {
-    dbpool.query('SELECT COUNT(*) AS orderCount FROM order_sum', (error, results) => {
-        if (error) throw error;
-        const orderCount = results[0].orderCount + 1;
-        const paddedCount = orderCount.toString().padStart(4, '0');
-        const orderNumber = `INV${paddedCount}`;
-        callback(orderNumber);
-    });
+
+function generateOrderNumber() {
+    let query = `SELECT COUNT(*) FROM order_sum`;
+    return dbpool.execute(query);
 }
 
 const inputOrderSummary = (body) => {
-    generateOrderNumber(orderNumber);
-    const id_order = orderNumber;
-    const {id_barang,
-        harga_barang_order,
-        qty_barang} = body;
-    const sub_total = qty_barang*harga_barang_order;
-    const query = "INSERT INTO `order_sum`(`id_order`, `tanggal_order`, `id_sales`, `id_lead`, `total_order`, `ket_order`) VALUES (?,GETDATE(),?,?,?,?)"
+    const id_order_temp = generateOrderNumber();
+    let id_order = `INV+${id_order_temp}`;
+    const {id_sales,
+        id_lead,
+        total_order,
+        ket_order} = body;
+    const date = new Date();
+    const temp_date = date.getFullYear() + '-' +
+        ('00' + (date.getMonth()+1)).slice(-2) + '-' +
+        ('00' + date.getDate()).slice(-2) + ' ' + 
+        ('00' + date.getHours()).slice(-2) + ':' + 
+        ('00' + date.getMinutes()).slice(-2) + ':' + 
+        ('00' + date.getSeconds()).slice(-2);
+    const query = "INSERT INTO `order_sum`(`id_order`, `tanggal_order`, `id_sales`, `id_lead`, `total_order`, `ket_order`) VALUES (?,?,?,?,?,?)"
+    console.log(id_order+" -|||||- "+date)
     const data = [
-        id_order,id_barang,harga_barang_order,qty_barang,sub_total
+        id_order,temp_date,id_sales,id_lead,total_order,ket_order
     ]
     return dbpool.execute(query,data);
 }
