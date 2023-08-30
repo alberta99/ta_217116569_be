@@ -27,14 +27,15 @@ const inputOrderDetail = (body) => {
 }
 
 
-function generateOrderNumber() {
-    let query = `SELECT COUNT(*) FROM order_sum`;
+async function generateOrderNumber() {
+    let query = `SELECT COUNT(*) as orderCount FROM order_sum`;
     return dbpool.execute(query);
 }
 
 const inputOrderSummary = (body) => {
     const id_order_temp = generateOrderNumber();
-    let id_order = `INV+${id_order_temp}`;
+    console.log(id_order_temp);
+    // let id_order = `INV+${id_order_temp[0].orderCount}`;
     const {id_sales,
         id_lead,
         total_order,

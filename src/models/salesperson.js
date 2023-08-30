@@ -9,11 +9,12 @@ const registerSales = (body) => {
     const {nama_sales,
         alamat_sales,
         nohp_sales,
-        email_sales} = body;
+        email_sales,
+        password_sales} = body;
     const id_sales = uuidv4();
-    const query =   "INSERT INTO `salesperson`(`id_sales`, `nama_sales`, `alamat_sales`, `nohp_sales`, `email_sales`) VALUES (?,?,?,?,?)"
+    const query =   "INSERT INTO `salesperson`(`id_sales`, `nama_sales`, `alamat_sales`, `nohp_sales`, `email_sales`,`password_sales`) VALUES (?,?,?,?,?,?)"
     const data = [
-        id_sales,nama_sales,alamat_sales,nohp_sales,email_sales
+        id_sales,nama_sales,alamat_sales,nohp_sales,email_sales,password_sales
     ]
     return dbpool.execute(query,data);
 }
