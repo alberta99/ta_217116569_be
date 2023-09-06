@@ -10,13 +10,21 @@ const insertBarang = (body) => {
     const {nama_barang,
         detail_barang,
         jenis_barang,
-        harga_barang} = body;
+        harga_barang,
+        gambar1_barang,
+        gambar2_barang,
+        gambar3_barang
+       } = body;
     const id_barang = uuidv4();
-    const query =   "INSERT INTO `barang`(`id_barang`, `nama_barang`, `jenis_barang`, `detail_barang`, harga_barang) VALUES (?,?,?,?,?)"
+    const query =   "INSERT INTO `barang`(`id_barang`, `nama_barang`, `jenis_barang`, `detail_barang`, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang) VALUES (?,?,?,?,?,?,?,?)"
     const data = [
-        id_barang,nama_barang,jenis_barang,detail_barang,harga_barang
+        id_barang,nama_barang,jenis_barang,detail_barang,harga_barang, gambar1_barang, gambar2_barang, gambar3_barang
     ]
     return dbpool.execute(query,data);
+}
+
+const updateBarang = (req) =>{
+    
 }
 
 module.exports = {

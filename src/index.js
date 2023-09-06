@@ -2,7 +2,7 @@ require('dotenv').config();
 const PORT = process.env.PORT || 4000;
 const express = require('express');
 const cors = require("cors");
-
+const fileUpload = require("express-fileupload");
 const leadRoutes = require('./routes/lead');
 const barangRoutes = require('./routes/barang');
 const salesRoutes = require('./routes/salesperson');
@@ -10,6 +10,12 @@ const orderRoutes = require('./routes/order');
 
 const app = express();
 
+app.use(
+    fileUpload({
+      useTempFiles: true,
+      tempFileDir: "/tmp/",
+    })
+);
 app.use(express.json());
 app.use(cors());
 app.use(function (req, res, next) {
