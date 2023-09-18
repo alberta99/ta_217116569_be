@@ -4,7 +4,6 @@ const path = require ('path');
 
 
 const barangController = require ('../controller/barang');
-
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -32,6 +31,7 @@ const upload = multer ({
 router.get('/', barangController.getAllBarang);
 //Register barang
 router.post('/', upload, barangController.insertBarang);
-
+router.get('/:product_id', barangController.getBarangByID);
+router.put('/:product_id',upload,barangController.updateBarang);
 
 module.exports = router;

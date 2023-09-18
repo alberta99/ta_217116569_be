@@ -7,12 +7,14 @@ const leadRoutes = require('./routes/lead');
 const barangRoutes = require('./routes/barang');
 const salesRoutes = require('./routes/salesperson');
 const orderRoutes = require('./routes/order');
+const bodyParser = require('body-parser');
 const path = require ('path');
 
 const app = express();
 
 app.use(express.static('public'));
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
 
 // app.use(
 //     fileUpload({
