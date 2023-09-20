@@ -79,9 +79,27 @@ const updateBarang = async (req,res) => {
     }
 }
 
+const deleteBarang = async (req,res) => {
+    try {
+        const product_id = req.params.product_id;
+        await barangModel.deleteBarang(product_id);
+        
+        return res.json({
+            message : 'Delete Barang Sukses',
+            data : data
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Server error",
+            serverMessage: error
+        })
+    }
+}
+
 module.exports = {
     getAllBarang,
     insertBarang,
     getBarangByID,
-    updateBarang
+    updateBarang,
+    deleteBarang
 }

@@ -9,4 +9,9 @@ router.get('/', LeadController.getAllLead);
 //Register Lead
 router.post('/',LeadController.registerLead);
 
+router.get('/:lead_id', LeadController.getLeadByID);
+
+router.put('/:lead_id', LeadController.updateLead);
+
+router.put('/',LeadController.updateLead);
 module.exports = router;

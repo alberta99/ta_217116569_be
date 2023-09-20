@@ -2,7 +2,7 @@ const dbpool = require('../config/dbconfig');
 const { v4: uuidv4 } = require('uuid');
 
 const getAllBarang = () => {
-    const query = 'SELECT * FROM barang';
+    const query = 'SELECT * FROM barang where deleted = 1';
     return dbpool.execute(query);
 }
 
@@ -21,9 +21,9 @@ const insertBarang = (body) => {
         gambar3_barang
        } = body;
     const id_barang = uuidv4();
-    const query =   "INSERT INTO `barang`(`id_barang`, `nama_barang`, `jenis_barang`, `detail_barang`, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang) VALUES (?,?,?,?,?,?,?,?)"
+    const query =   "INSERT INTO `barang`(`id_barang`, `nama_barang`, `jenis_barang`, `detail_barang`, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, deleted) VALUES (?,?,?,?,?,?,?,?,?)"
     const data = [
-        id_barang,nama_barang,jenis_barang,detail_barang,harga_barang, gambar1_barang, gambar2_barang, gambar3_barang
+        id_barang,nama_barang,jenis_barang,detail_barang,harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, 1
     ]
     return dbpool.execute(query,data);
 }
@@ -42,6 +42,11 @@ const updateBarang = (id_barang,body) =>{
     return dbpool.execute(query);
 }
 
+const deleteBarang = (id_barang) =>{
+    const query = `UPDATE barang SET deleted = 0 WHERE id_barang = '${id_barang}' AND deleted = 1`
+    return dbpool.execute(query);
+}
+
 module.exports = {
-    insertBarang, getAllBarang, getBarangByID, updateBarang
+    insertBarang, getAllBarang, getBarangByID, updateBarang, deleteBarang
 }

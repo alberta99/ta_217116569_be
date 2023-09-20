@@ -33,5 +33,6 @@ router.get('/', barangController.getAllBarang);
 router.post('/', upload, barangController.insertBarang);
 router.get('/:product_id', barangController.getBarangByID);
 router.put('/:product_id',upload,barangController.updateBarang);
+router.put('/del/:product_id',barangController.deleteBarang);
 
 module.exports = router;
