@@ -13,5 +13,8 @@ router.get('/:lead_id', LeadController.getLeadByID);
 
 router.put('/:lead_id', LeadController.updateLead);
 
+router.put('/del/:lead_id', LeadController.deleteLead);
+
+
 router.put('/',LeadController.updateLead);
 module.exports = router;

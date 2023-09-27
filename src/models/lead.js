@@ -1,7 +1,7 @@
 const dbpool = require('../config/dbconfig');
 const { v4: uuidv4 } = require('uuid');
 const getAllLead = () => {
-    const query = 'SELECT * FROM lead';
+    const query = 'SELECT * FROM lead where deleted = 1';
     return dbpool.execute(query);
 }
 
@@ -47,6 +47,11 @@ const registerLead = (body) => {
     return dbpool.execute(query,data);
 }
 
+const deleteLead= (id_lead) =>{
+    const query = `UPDATE lead SET deleted = 0 WHERE id_lead = '${id_lead}' AND deleted = 1`
+    return dbpool.execute(query);
+}
+
 module.exports = {
-    getAllLead, registerLead, getLeadByID, updateLead
+    getAllLead, registerLead, getLeadByID, updateLead, deleteLead
 }

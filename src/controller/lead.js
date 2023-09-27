@@ -69,9 +69,27 @@ const updateLead = async (req,res) => {
     }
 }
 
+const deleteLead = async (req,res) => {
+    try {
+        const lead_id = req.params.lead_id;
+        await leadModel.deleteLead(lead_id);
+        
+        return res.json({
+            message : 'Delete Lead Sukses',
+            data : data
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Server error",
+            serverMessage: error
+        })
+    }
+}
+
 module.exports = {
     getAllLead,
     registerLead,
     updateLead,
-    getLeadByID
+    getLeadByID,
+    deleteLead
 }

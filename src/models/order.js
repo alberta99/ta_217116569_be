@@ -28,14 +28,17 @@ const inputOrderDetail = (body) => {
 
 
 async function generateOrderNumber() {
-    let query = `SELECT COUNT(*) as orderCount FROM order_sum`;
+    let query = `SELECT COUNT(*) as orderCount FROM order_sum where date(tanggal_order) = CURRENT_DATE`;
     return dbpool.execute(query);
 }
 
-const inputOrderSummary = (body) => {
-    const id_order_temp = generateOrderNumber();
-    console.log(id_order_temp);
-    // let id_order = `INV+${id_order_temp[0].orderCount}`;
+function paddingCount (angka, panjang) {
+    return String(angka).padStart(panjang,"0");
+}
+
+const inputOrderSummary = async (body) => {
+    const id_order_temp = await generateOrderNumber();
+    const count = id_order_temp[0][0].orderCount;
     const {id_sales,
         id_lead,
         total_order,
@@ -47,8 +50,8 @@ const inputOrderSummary = (body) => {
         ('00' + date.getHours()).slice(-2) + ':' + 
         ('00' + date.getMinutes()).slice(-2) + ':' + 
         ('00' + date.getSeconds()).slice(-2);
+    const id_order = `INV/${('00' + date.getDate()).slice(-2)}${('00' + (date.getMonth()+1)).slice(-2)}${date.getFullYear()}/${paddingCount(count+1,4)}`;
     const query = "INSERT INTO `order_sum`(`id_order`, `tanggal_order`, `id_sales`, `id_lead`, `total_order`, `ket_order`) VALUES (?,?,?,?,?,?)"
-    console.log(id_order+" -|||||- "+date)
     const data = [
         id_order,temp_date,id_sales,id_lead,total_order,ket_order
     ]
