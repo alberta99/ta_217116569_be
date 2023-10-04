@@ -16,4 +16,6 @@ router.put('/:sales_id', salesController.updateSales);
 
 router.put('/del/:sales_id', salesController.deleteSales);
 
+router.get('/login/:email/:password', salesController.loginSales);
+
 module.exports = router;

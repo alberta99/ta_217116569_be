@@ -85,10 +85,34 @@ const deleteSales = async (req,res) => {
         })
     }
 }
+
+const loginSales = async (req,res) => {
+    const email = req.params.email;
+    const password = req.params.password;
+    try {
+        const sales = await salesModel.loginSales(email,password);
+        const data = sales[0][0];
+        if(!data){
+            return res.status(400).json({
+                message: "Login Gagal",
+            })
+        }
+        return res.json({
+            message : 'Login Berhasil',
+            data : data
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Login Error",
+            serverMessage: error
+        })
+    }
+}
 module.exports = {
     getAllSales,
     registerSales,
     getSalesByID,
     deleteSales,
-    updateSales
+    updateSales,
+    loginSales
 }

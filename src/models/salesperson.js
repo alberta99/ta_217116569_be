@@ -40,11 +40,17 @@ const registerSales = (body) => {
         ('00' + date.getSeconds()).slice(-2);
     const query =   "INSERT INTO `salesperson`(`id_sales`,`tgl_join_sales` ,`nama_sales`, `alamat_sales`, `nohp_sales`, `email_sales`,`password_sales`,`status`,`deleted`) VALUES (?,?,?,?,?,?,?,?,?)"
     const data = [
-        id_sales,temp_date,nama_sales,alamat_sales,nohp_sales,email_sales,password_sales,0,1
+        id_sales,temp_date,nama_sales,alamat_sales,nohp_sales,email_sales,password_sales,1,1
     ]
     return dbpool.execute(query,data);
 }
 
+const loginSales = (email,password) =>{
+    const query = `select * from salesperson where email_sales = '${email}' AND password_sales = '${password}' AND status = 1 AND deleted = 1`
+    console.log(query);
+    return dbpool.execute(query);
+}
+
 module.exports = {
-    getAllSales, registerSales, getSalesByID,updateSales, deleteSales
+    getAllSales, registerSales, getSalesByID,updateSales, deleteSales, loginSales
 }
