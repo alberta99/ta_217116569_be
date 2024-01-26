@@ -16,6 +16,8 @@ router.get(
   OrderController.getDaftarpesanan_idsales
 );
 
+router.get("/orderidsales/:id_sales", OrderController.getAllOrder_idsales);
+
 router.post("/updatecart", OrderController.updateCart);
 
 router.get(
@@ -32,5 +34,7 @@ router.delete(
 
 router.put("/minusqty/:id_cart/:id_cart_detail", OrderController.cartMinus);
 router.put("/plusqty/:id_cart/:id_cart_detail", OrderController.cartPlus);
+router.get("/detailorder/:id_order", OrderController.getOrder_detail);
+router.get("/ordersumbyid/:id_order", OrderController.getOrderSum_by_idOrder);
 
 module.exports = router;

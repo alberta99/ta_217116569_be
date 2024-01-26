@@ -11,8 +11,18 @@ const getAllOrder_detail = () => {
   return dbpool.execute(query);
 };
 
-const getAllOrder_idsales = (id_sales, id_lead) => {
-  const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_perusahaan FROM daftarpesanan dp JOIN daftarpesanan_detail dpd ON dp.id_cart=dpd.id_cart JOIN barang b ON b.id_barang=dpd.id_barang JOIN lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
+const getOrderSum_by_idOrder = (id_order) => {
+  const query = `SELECT id_order, tanggal_order, tanggal_kirim, alamat_kirim, id_sales, id_lead, qty_total, total_order, ket_order FROM order_sum WHERE id_order='${id_order}'`;
+  return dbpool.execute(query);
+};
+
+const getAllOrder_idsales = (id_sales) => {
+  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.ket_order,l.nama_lead,l.nama_perusahaan FROM order_sum os JOIN lead l ON l.id_lead = os.id_lead WHERE os.id_sales='${id_sales}'`;
+  return dbpool.execute(query);
+};
+
+const getOrder_detail = (id_order) => {
+  const query = `SELECT id_order_detail, id_order, id_barang, nama_barang, harga_barang_order, harga_diskon, qty_barang, sub_total, catatan_order FROM order_detail WHERE id_order = '${id_order}'`;
   return dbpool.execute(query);
 };
 
@@ -53,10 +63,10 @@ const inputOrderSummary = async (body) => {
       ("00" + date.getMinutes()).slice(-2) +
       ":" +
       ("00" + date.getSeconds()).slice(-2);
-    const id_order = `INV/${("00" + date.getDate()).slice(-2)}${(
+    const id_order = `INV-${("00" + date.getDate()).slice(-2)}${(
       "00" +
       (date.getMonth() + 1)
-    ).slice(-2)}${date.getFullYear()}/${paddingCount(count + 1, 4)}`;
+    ).slice(-2)}${date.getFullYear()}-${paddingCount(count + 1, 4)}`;
     //tanggal kirim
     const date2 = new Date(tanggal_kirim);
     const tgl_kirim =
@@ -263,15 +273,19 @@ const cartMinus = async (id_cart, id_cart_detail) => {
   try {
     const queryselect2 = `SELECT * FROM daftarpesanan_detail WHERE id_cart='${id_cart}'`;
     const select2 = await dbpool.execute(queryselect2);
-    console.log(id_cart);
     const queryselect = `SELECT * FROM daftarpesanan_detail WHERE id_cart='${id_cart}' AND id_cart_detail='${id_cart_detail}'`;
     const select = await dbpool.execute(queryselect);
-    if (select2[0][0].length == 1 && select[0][0].qty_barang == 1) {
+    const queryselect3 = `SELECT * FROM daftarpesanan WHERE id_cart='${id_cart}'`;
+    const select3 = await dbpool.execute(queryselect3);
+    if (
+      (select2[0][0].length == 1 && select[0][0].qty_barang == 1) ||
+      (select3[0][0].qty_total == 1 && select[0][0].qty_barang == 1)
+    ) {
       const query1 = `DELETE FROM daftarpesanan WHERE id_cart='${select[0][0].id_cart}'`;
       dbpool.execute(query1);
       const query2 = `DELETE FROM daftarpesanan_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
       return dbpool.execute(query2);
-    } else if (select[0][0].qty_barang == 1) {
+    } else if (select[0][0].qty_barang <= 1) {
       const query5 = `DELETE FROM daftarpesanan_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
       dbpool.execute(query5);
       const query6 = `UPDATE daftarpesanan SET qty_total=qty_total-${1}, harga_total=harga_total-${
@@ -311,6 +325,7 @@ const cartPlus = async (id_cart, id_cart_detail) => {
 
 module.exports = {
   getAllOrder_detail,
+  getAllOrder_idsales,
   getAllOrder_sum,
   inputOrderSummary,
   daftarPesanan,
@@ -321,4 +336,6 @@ module.exports = {
   deleteDetailCart,
   cartMinus,
   cartPlus,
+  getOrder_detail,
+  getOrderSum_by_idOrder,
 };

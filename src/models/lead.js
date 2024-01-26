@@ -32,46 +32,65 @@ const updateLead = (id_lead, body) => {
 };
 
 const registerLead = (body) => {
-  const {
-    nama_lead,
-    nama_perusahaan,
-    alamat_lead,
-    detail_alamat,
-    nohp_lead,
-    email_lead,
-    id_sales,
-  } = body;
-  const date = new Date();
-  const temp_date =
-    date.getFullYear() +
-    "-" +
-    ("00" + (date.getMonth() + 1)).slice(-2) +
-    "-" +
-    ("00" + date.getDate()).slice(-2) +
-    " " +
-    ("00" + date.getHours()).slice(-2) +
-    ":" +
-    ("00" + date.getMinutes()).slice(-2) +
-    ":" +
-    ("00" + date.getSeconds()).slice(-2);
-  const id_lead = uuidv4();
-  const query =
-    "INSERT INTO `lead` (`id_lead`, `nama_lead`,`nama_perusahaan`, `alamat_lead`, `detail_alamat`,`nohp_lead` ,`email_lead`,`password_lead`, `tgl_join_lead`, `id_sales`, `status`, `deleted`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
-  const data = [
-    id_lead,
-    nama_lead,
-    nama_perusahaan,
-    alamat_lead,
-    detail_alamat,
-    nohp_lead,
-    email_lead,
-    "default",
-    temp_date,
-    id_sales,
-    0,
-    1,
-  ];
-  return dbpool.execute(query, data);
+  try {
+    const {
+      nama_lead,
+      tgl_lahir_lead,
+      nama_perusahaan,
+      alamat_lead,
+      detail_alamat,
+      lat_lng_lead,
+      nohp_lead,
+      email_lead,
+      id_sales,
+    } = body;
+    console.log(body);
+    const date = new Date(tgl_lahir_lead);
+    const temp_date =
+      date.getFullYear() +
+      "-" +
+      ("00" + (date.getMonth() + 1)).slice(-2) +
+      "-" +
+      ("00" + date.getDate()).slice(-2) +
+      " " +
+      ("00" + date.getHours()).slice(-2) +
+      ":" +
+      ("00" + date.getMinutes()).slice(-2) +
+      ":" +
+      ("00" + date.getSeconds()).slice(-2);
+    const id_lead = uuidv4();
+    const lat = lat_lng_lead.lat;
+    const lng = lat_lng_lead.lng;
+    const tgl_lahir =
+      date.getFullYear() +
+      "-" +
+      ("00" + (date.getMonth() + 1)).slice(-2) +
+      "-" +
+      ("00" + date.getDate()).slice(-2);
+    const query =
+      "INSERT INTO `lead`(`id_lead`, `nama_lead`, `tgl_lahir_lead`, `nama_perusahaan`, `alamat_lead`, `detail_alamat`, `lat_lead`, `lng_lead`, `nohp_lead`, `email_lead`, `password_lead`, `tgl_join_lead`, `id_sales`, `status`, `deleted`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    const data = [
+      id_lead,
+      nama_lead,
+      tgl_lahir,
+      nama_perusahaan,
+      alamat_lead,
+      detail_alamat,
+      lat,
+      lng,
+      nohp_lead,
+      email_lead,
+      "default",
+      temp_date,
+      id_sales,
+      0,
+      1,
+    ];
+    console.log(data);
+    return dbpool.execute(query, data);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const deleteLead = (id_lead) => {

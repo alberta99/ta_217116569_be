@@ -15,6 +15,54 @@ const getAllOrder_detail = async (req, res) => {
   }
 };
 
+const getOrder_detail = async (req, res) => {
+  const id_order = req.params.id_order;
+  try {
+    const [data] = await orderModel.getOrder_detail(id_order);
+    return res.json({
+      message: "Get Order Detail success",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
+const getOrderSum_by_idOrder = async (req, res) => {
+  const id_order = req.params.id_order;
+  try {
+    const [data] = await orderModel.getOrderSum_by_idOrder(id_order);
+    return res.json({
+      message: "Get Order Summary success",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
+const getAllOrder_idsales = async (req, res) => {
+  const id_sales = req.params.id_sales;
+  try {
+    const [data] = await orderModel.getAllOrder_idsales(id_sales);
+    return res.json({
+      message: "Get Order By ID Sales success",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
 const getAllOrder_Sum = async (req, res) => {
   try {
     const [data] = await orderModel.getAllOrder_sum();
@@ -203,6 +251,9 @@ module.exports = {
   cekDaftarPesanan,
   DeleteAllCart,
   deleteDetailCart,
+  getAllOrder_idsales,
   cartMinus,
   cartPlus,
+  getOrder_detail,
+  getOrderSum_by_idOrder,
 };
