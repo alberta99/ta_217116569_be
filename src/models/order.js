@@ -17,7 +17,7 @@ const getOrderSum_by_idOrder = (id_order) => {
 };
 
 const getAllOrder_idsales = (id_sales) => {
-  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.ket_order,l.nama_lead,l.nama_perusahaan FROM order_sum os JOIN lead l ON l.id_lead = os.id_lead WHERE os.id_sales='${id_sales}'`;
+  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.ket_order,l.nama_lead,l.nama_perusahaan FROM freedb_database_ta.order_sum os JOIN freedb_database_ta.lead l ON l.id_lead = os.id_lead WHERE os.id_sales='${id_sales}'`;
   return dbpool.execute(query);
 };
 
@@ -164,7 +164,7 @@ const daftarPesanan = async (body) => {
 };
 
 const getDaftarpesanan_idsales = (id_sales, id_lead) => {
-  const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_perusahaan FROM daftarpesanan dp JOIN daftarpesanan_detail dpd ON dp.id_cart=dpd.id_cart JOIN barang b ON b.id_barang=dpd.id_barang JOIN lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
+  const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_perusahaan FROM freedb_database_ta.daftarpesanan dp JOIN freedb_database_ta.daftarpesanan_detail dpd ON dp.id_cart=dpd.id_cart JOIN freedb_database_ta.barang b ON b.id_barang=dpd.id_barang JOIN freedb_database_ta.lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
   return dbpool.execute(query);
 };
 

@@ -2,17 +2,18 @@ const dbpool = require("../config/dbconfig");
 const { v4: uuidv4 } = require("uuid");
 const getAllLead = () => {
   const query =
-    "SELECT l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM lead l JOIN salesperson s ON l.id_sales=s.id_sales where l.deleted = 1";
+    "SELECT l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM freedb_database_ta.lead l JOIN freedb_database_ta.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1";
   return dbpool.execute(query);
 };
 
+//kenapa error
 const getLeadByID = (id_lead) => {
   const query = `SELECT * FROM lead WHERE id_lead='${id_lead}'`;
   return dbpool.execute(query);
 };
 
 const getLeadByIDsales = (id_sales) => {
-  const query = `SELECT l.id_lead,l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM lead l JOIN salesperson s ON l.id_sales=s.id_sales where l.deleted = 1 AND l.id_sales='${id_sales}'`;
+  const query = `SELECT l.id_lead,l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM freedb_database_ta.lead l JOIN freedb_database_ta.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1 AND l.id_sales='${id_sales}'`;
   return dbpool.execute(query);
 };
 

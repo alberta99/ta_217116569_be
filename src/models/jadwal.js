@@ -24,7 +24,7 @@ const insertJadwal = (body) => {
 };
 
 const getJadwalByIDsales = (id_sales) => {
-  const query = `select j.tanggal_kunjungan, j.catatan_kunjungan, l.nama_lead, l.nama_perusahaan, l.alamat_lead from jadwal j JOIN lead l ON l.id_lead=j.id_lead where j.id_sales='${id_sales}';`;
+  const query = `select j.tanggal_kunjungan, j.catatan_kunjungan, l.nama_lead, l.nama_perusahaan, l.alamat_lead from freedb_database_ta.jadwal j JOIN freedb_database_ta.lead l ON l.id_lead=j.id_lead where j.id_sales='${id_sales}';`;
   return dbpool.execute(query);
 };
 
