@@ -1,19 +1,18 @@
 const dbpool = require("../config/dbconfig");
 const { v4: uuidv4 } = require("uuid");
 const getAllLead = () => {
-  const query =
-    "SELECT l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM freedb_database_ta.lead l JOIN freedb_database_ta.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1";
+  const query = `SELECT l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1`;
   return dbpool.execute(query);
 };
 
 //kenapa error
 const getLeadByID = (id_lead) => {
-  const query = `SELECT * FROM lead WHERE id_lead='${id_lead}'`;
+  const query = `SELECT * FROM ${process.env.DB_NAME}.lead WHERE id_lead='${id_lead}'`;
   return dbpool.execute(query);
 };
 
 const getLeadByIDsales = (id_sales) => {
-  const query = `SELECT l.id_lead,l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM freedb_database_ta.lead l JOIN freedb_database_ta.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1 AND l.id_sales='${id_sales}'`;
+  const query = `SELECT l.id_lead,l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1 AND l.id_sales='${id_sales}'`;
   return dbpool.execute(query);
 };
 
@@ -27,7 +26,7 @@ const updateLead = (id_lead, body) => {
     long_lead,
     lat_lead,
   } = body;
-  const query = `UPDATE lead SET nama_lead='${nama_lead}',nama_perusahaan='${nama_perusahaan}',alamat_lead='${alamat_lead}',nohp_lead='${nohp_lead}',email_lead='${email_lead}' WHERE id_lead = '${id_lead}'`;
+  const query = `UPDATE ${process.env.DB_NAME}.lead SET nama_lead='${nama_lead}',nama_perusahaan='${nama_perusahaan}',alamat_lead='${alamat_lead}',nohp_lead='${nohp_lead}',email_lead='${email_lead}' WHERE id_lead = '${id_lead}'`;
   //,long_lead=${long_lead},lat_lead=${lat_lead}
   return dbpool.execute(query);
 };
@@ -68,8 +67,7 @@ const registerLead = (body) => {
       ("00" + (date.getMonth() + 1)).slice(-2) +
       "-" +
       ("00" + date.getDate()).slice(-2);
-    const query =
-      "INSERT INTO `lead`(`id_lead`, `nama_lead`, `tgl_lahir_lead`, `nama_perusahaan`, `alamat_lead`, `detail_alamat`, `lat_lead`, `lng_lead`, `nohp_lead`, `email_lead`, `password_lead`, `tgl_join_lead`, `id_sales`, `status`, `deleted`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    const query = `INSERT INTO '${process.env.DB_NAME}.lead'('id_lead', 'nama_lead', 'tgl_lahir_lead', 'nama_perusahaan', 'alamat_lead', 'detail_alamat', 'lat_lead', 'lng_lead', 'nohp_lead', 'email_lead', 'password_lead', 'tgl_join_lead', 'id_sales', 'status', 'deleted') VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
     const data = [
       id_lead,
       nama_lead,
@@ -95,7 +93,7 @@ const registerLead = (body) => {
 };
 
 const deleteLead = (id_lead) => {
-  const query = `UPDATE lead SET deleted = 0 WHERE id_lead = '${id_lead}' AND deleted = 1`;
+  const query = `UPDATE ${process.env.DB_NAME}.lead SET deleted = 0 WHERE id_lead = '${id_lead}' AND deleted = 1`;
   return dbpool.execute(query);
 };
 
