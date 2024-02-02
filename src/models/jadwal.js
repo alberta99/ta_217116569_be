@@ -17,7 +17,7 @@ const insertJadwal = (body) => {
     ("00" + date.getMinutes()).slice(-2) +
     ":" +
     ("00" + date.getSeconds()).slice(-2);
-  const query = `INSERT INTO '${process.env.DB_NAME}.jadwal'('id_jadwal', 'id_lead', 'id_sales', 'tanggal_kunjungan','catatan_kunjungan') VALUES (?,?,?,?,?)`;
+  const query = `INSERT INTO ${process.env.DB_NAME}.jadwal(id_jadwal, id_lead, id_sales, tanggal_kunjungan,catatan_kunjungan) VALUES (?,?,?,?,?)`;
   const data = [id_jadwal, id_lead, id_sales, temp_date, catatan_kunjungan];
   return dbpool.execute(query, data);
 };

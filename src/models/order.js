@@ -76,7 +76,7 @@ const inputOrderSummary = async (body) => {
       "-" +
       ("00" + date2.getDate()).slice(-2);
     //details
-    const query1 = `INSERT INTO '${process.env.DB_NAME}.order_sum'('id_order', 'tanggal_order','tanggal_kirim','alamat_kirim', 'id_sales', 'id_lead', qty_total ,total_order, 'ket_order') VALUES (?,?,?,?,?,?,?,?,?)`;
+    const query1 = `INSERT INTO ${process.env.DB_NAME}.order_sum(id_order, tanggal_order,tanggal_kirim,alamat_kirim, id_sales, id_lead, qty_total ,total_order, ket_order) VALUES (?,?,?,?,?,?,?,?,?)`;
     const result1 = await connection.query(query1, [
       id_order,
       temp_date,
@@ -103,7 +103,7 @@ const inputOrderSummary = async (body) => {
         item.catatan_order == null ? "" : item.catatan_order,
       ];
     });
-    const query2 = `INSERT INTO '${process.env.DB_NAME}.order_detail'('id_order_detail', 'id_order', 'id_barang', 'nama_barang', harga_barang_order, harga_diskon, qty_barang, sub_total, 'catatan_order') VALUES ?`;
+    const query2 = `INSERT INTO ${process.env.DB_NAME}.order_detail(id_order_detail, id_order, id_barang, nama_barang, harga_barang_order, harga_diskon, qty_barang, sub_total, catatan_order) VALUES ?`;
     const result2 = await connection.query(query2, [order_details]);
     const query3 = `UPDATE ${process.env.DB_NAME}.lead set status=1 where id_lead='${id_lead}'`;
     await connection.query(query3);
