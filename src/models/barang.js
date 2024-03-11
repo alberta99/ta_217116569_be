@@ -12,34 +12,39 @@ const getAllBarang = () => {
 };
 
 const getBarangByID = (id_barang) => {
-  const query = `SELECT nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang FROM ${process.env.DB_NAME}.barang WHERE id_barang='${id_barang}'`;
+  const query = `SELECT nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, qty_terjual FROM ${process.env.DB_NAME}.barang WHERE id_barang='${id_barang}'`;
   return dbpool.execute(query);
 };
 
 const insertBarang = (body) => {
-  const {
-    nama_barang,
-    detail_barang,
-    jenis_barang,
-    harga_barang,
-    gambar1_barang,
-    gambar2_barang,
-    gambar3_barang,
-  } = body;
-  const id_barang = uuidv4();
-  const query = `INSERT INTO ${process.env.DB_NAME}.barang(id_barang, nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, deleted) VALUES (?,?,?,?,?,?,?,?,?)`;
-  const data = [
-    id_barang,
-    nama_barang,
-    jenis_barang,
-    detail_barang,
-    harga_barang,
-    gambar1_barang,
-    gambar2_barang,
-    gambar3_barang,
-    1,
-  ];
-  return dbpool.execute(query, data);
+  try {
+    const {
+      nama_barang,
+      detail_barang,
+      jenis_barang,
+      harga_barang,
+      gambar1_barang,
+      gambar2_barang,
+      gambar3_barang,
+    } = body;
+    const id_barang = uuidv4();
+    const query = `INSERT INTO ${process.env.DB_NAME}.barang(id_barang, nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, deleted,qty_terjual) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+    const data = [
+      id_barang,
+      nama_barang,
+      jenis_barang,
+      detail_barang,
+      harga_barang,
+      gambar1_barang,
+      gambar2_barang,
+      gambar3_barang,
+      1,
+      0,
+    ];
+    return dbpool.execute(query, data);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const updateBarang = async (id_barang, body) => {

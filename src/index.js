@@ -8,6 +8,7 @@ const barangRoutes = require("./routes/barang");
 const salesRoutes = require("./routes/salesperson");
 const orderRoutes = require("./routes/order");
 const jadwalRoutes = require("./routes/jadwal");
+const laporanRoutes = require("./routes/laporan");
 const bodyParser = require("body-parser");
 const path = require("path");
 
@@ -40,6 +41,7 @@ app.use("/barang", barangRoutes);
 app.use("/salesperson", salesRoutes);
 app.use("/order", orderRoutes);
 app.use("/jadwal", jadwalRoutes);
+app.use("/laporan", laporanRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running in port ${PORT}`);

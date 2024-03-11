@@ -32,6 +32,14 @@ router.delete(
   OrderController.deleteDetailCart
 );
 
+router.get("/count/:id_sales", OrderController.countDaftarpesanan);
+router.get("/countselesai/:id_sales", OrderController.countPesananSelesai);
+router.get("/countterproses/:id_sales", OrderController.countPesananTerproses);
+router.get(
+  "/countperhari/:id_sales/:tgl_start/:tgl_end",
+  OrderController.countOrderperhari
+);
+
 router.put("/minusqty/:id_cart/:id_cart_detail", OrderController.cartMinus);
 router.put("/plusqty/:id_cart/:id_cart_detail", OrderController.cartPlus);
 router.get("/detailorder/:id_order", OrderController.getOrder_detail);

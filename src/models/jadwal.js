@@ -23,11 +23,23 @@ const insertJadwal = (body) => {
 };
 
 const getJadwalByIDsales = (id_sales) => {
-  const query = `select j.tanggal_kunjungan, j.catatan_kunjungan, l.nama_lead, l.nama_perusahaan, l.alamat_lead from ${process.env.DB_NAME}.jadwal j JOIN ${process.env.DB_NAME}.lead l ON l.id_lead=j.id_lead where j.id_sales='${id_sales}';`;
+  const query = `select j.id_jadwal,j.tanggal_kunjungan, j.catatan_kunjungan, l.nama_lead, l.nama_perusahaan, l.alamat_lead,l.detail_alamat, l.nohp_lead from ${process.env.DB_NAME}.jadwal j JOIN ${process.env.DB_NAME}.lead l ON l.id_lead=j.id_lead where j.id_sales='${id_sales}';`;
+  return dbpool.execute(query);
+};
+
+const getJadwalByIDJadwal = (id_jadwal) => {
+  const query = `select j.id_jadwal,j.tanggal_kunjungan, j.catatan_kunjungan,j.id_sales, l.nama_lead, l.nama_perusahaan, l.alamat_lead,l.detail_alamat,l.lat_lead,l.lng_lead, l.nohp_lead from ${process.env.DB_NAME}.jadwal j JOIN ${process.env.DB_NAME}.lead l ON l.id_lead=j.id_lead where j.id_jadwal='${id_jadwal}';`;
+  return dbpool.execute(query);
+};
+
+const getJadwalByTanggalidSales = (id_sales, tanggal) => {
+  const query = `select j.id_jadwal,j.tanggal_kunjungan, j.catatan_kunjungan, l.nama_lead, l.nama_perusahaan, l.alamat_lead,l.detail_alamat, l.nohp_lead from ${process.env.DB_NAME}.jadwal j JOIN ${process.env.DB_NAME}.lead l ON l.id_lead=j.id_lead where j.id_sales='${id_sales}' and DATE(j.tanggal_kunjungan)='${tanggal}';`;
   return dbpool.execute(query);
 };
 
 module.exports = {
   insertJadwal,
   getJadwalByIDsales,
+  getJadwalByIDJadwal,
+  getJadwalByTanggalidSales,
 };

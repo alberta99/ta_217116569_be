@@ -19,17 +19,10 @@ const getAllLead = async (req, res) => {
 const getLeadByID = async (req, res) => {
   const lead_id = req.params.lead_id;
   try {
-    const data = await leadModel.getLeadByID(lead_id);
-    const lead = data[0][0];
-    if (!lead) {
-      return res.status(404).json({
-        message: "Lead Not Found",
-        data: null,
-      });
-    }
+    const [data] = await leadModel.getLeadByID(lead_id);
     return res.json({
       message: "Get Lead By ID Sukses",
-      data: lead,
+      data: data,
     });
   } catch (error) {
     return res.status(500).json({

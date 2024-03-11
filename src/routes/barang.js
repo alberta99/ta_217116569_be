@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+var cloudinary = require("cloudinary");
 
 const barangController = require("../controller/barang");
 const router = express.Router();

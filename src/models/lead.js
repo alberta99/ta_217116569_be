@@ -44,30 +44,30 @@ const registerLead = (body) => {
       email_lead,
       id_sales,
     } = body;
-    console.log(body);
-    const date = new Date(tgl_lahir_lead);
+    const tgl_join_temp = new Date();
     const temp_date =
-      date.getFullYear() +
+      tgl_join_temp.getFullYear() +
       "-" +
-      ("00" + (date.getMonth() + 1)).slice(-2) +
+      ("00" + (tgl_join_temp.getMonth() + 1)).slice(-2) +
       "-" +
-      ("00" + date.getDate()).slice(-2) +
+      ("00" + tgl_join_temp.getDate()).slice(-2) +
       " " +
-      ("00" + date.getHours()).slice(-2) +
+      ("00" + tgl_join_temp.getHours()).slice(-2) +
       ":" +
-      ("00" + date.getMinutes()).slice(-2) +
+      ("00" + tgl_join_temp.getMinutes()).slice(-2) +
       ":" +
-      ("00" + date.getSeconds()).slice(-2);
+      ("00" + tgl_join_temp.getSeconds()).slice(-2);
     const id_lead = uuidv4();
     const lat = lat_lng_lead.lat;
     const lng = lat_lng_lead.lng;
+    const date = new Date(tgl_lahir_lead);
     const tgl_lahir =
       date.getFullYear() +
       "-" +
       ("00" + (date.getMonth() + 1)).slice(-2) +
       "-" +
       ("00" + date.getDate()).slice(-2);
-    const query = `INSERT INTO '${process.env.DB_NAME}.lead'('id_lead', 'nama_lead', 'tgl_lahir_lead', 'nama_perusahaan', 'alamat_lead', 'detail_alamat', 'lat_lead', 'lng_lead', 'nohp_lead', 'email_lead', 'password_lead', 'tgl_join_lead', 'id_sales', 'status', 'deleted') VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+    const query = `INSERT INTO ${process.env.DB_NAME}.lead(id_lead, nama_lead, tgl_lahir_lead, nama_perusahaan,alamat_lead,detail_alamat, lat_lead,lng_lead,nohp_lead,email_lead,password_lead,tgl_join_lead,id_sales,status,deleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
     const data = [
       id_lead,
       nama_lead,
@@ -85,7 +85,6 @@ const registerLead = (body) => {
       0,
       1,
     ];
-    console.log(data);
     return dbpool.execute(query, data);
   } catch (error) {
     console.log(error);

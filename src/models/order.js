@@ -1,5 +1,6 @@
 const dbpool = require("../config/dbconfig");
 const { v4: uuidv4 } = require("uuid");
+const moment = require("moment");
 
 const getAllOrder_sum = () => {
   const query = `SELECT * FROM ${process.env.DB_NAME}.order_sum`;
@@ -12,17 +13,17 @@ const getAllOrder_detail = () => {
 };
 
 const getOrderSum_by_idOrder = (id_order) => {
-  const query = `SELECT id_order, tanggal_order, tanggal_kirim, alamat_kirim, id_sales, id_lead, qty_total, total_order, ket_order FROM ${process.env.DB_NAME}.order_sum WHERE id_order='${id_order}'`;
+  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.nama_penerima,os.nama_perusahaan_penerima,os.no_telp_penerima,os.id_sales,os.sub_total_order,os.harga_diskon,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nohp_lead,l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.detail_alamat FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_order='${id_order}'`;
   return dbpool.execute(query);
 };
 
 const getAllOrder_idsales = (id_sales) => {
-  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.ket_order,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_sales='${id_sales}'`;
+  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_sales='${id_sales}'`;
   return dbpool.execute(query);
 };
 
 const getOrder_detail = (id_order) => {
-  const query = `SELECT id_order_detail, id_order, id_barang, nama_barang, harga_barang_order, harga_diskon, qty_barang, sub_total, catatan_order FROM ${process.env.DB_NAME}.order_detail WHERE id_order = '${id_order}'`;
+  const query = `SELECT id_order_detail, id_order, id_barang, nama_barang, harga_barang_order, qty_barang, sub_total, catatan_order FROM ${process.env.DB_NAME}.order_detail WHERE id_order = '${id_order}'`;
   return dbpool.execute(query);
 };
 
@@ -45,10 +46,14 @@ const inputOrderSummary = async (body) => {
       id_sales,
       id_lead,
       tanggal_kirim,
+      nama_penerima,
+      nama_perusahaan_penerima,
       alamat_kirim,
-      ket_order,
+      no_telp_penerima,
+      jenis_pembayaran,
       harga_total,
       qty_total,
+      harga_diskon,
     } = body;
     const date = new Date();
     const temp_date =
@@ -76,20 +81,28 @@ const inputOrderSummary = async (body) => {
       "-" +
       ("00" + date2.getDate()).slice(-2);
     //details
-    const query1 = `INSERT INTO ${process.env.DB_NAME}.order_sum(id_order, tanggal_order,tanggal_kirim,alamat_kirim, id_sales, id_lead, qty_total ,total_order, ket_order) VALUES (?,?,?,?,?,?,?,?,?)`;
+    const temp_diskon =
+      harga_diskon && harga_diskon != "" && harga_diskon != null
+        ? parseInt(harga_diskon)
+        : 0;
+    const query1 = `INSERT INTO ${process.env.DB_NAME}.order_sum(id_order, tanggal_order,tanggal_kirim,nama_penerima,nama_perusahaan_penerima,alamat_kirim,no_telp_penerima, id_sales, id_lead, qty_total,sub_total_order,harga_diskon ,total_order, jenis_pembayaran,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
     const result1 = await connection.query(query1, [
       id_order,
       temp_date,
       tgl_kirim,
+      nama_penerima,
+      nama_perusahaan_penerima,
       alamat_kirim,
+      no_telp_penerima,
       id_sales,
       id_lead,
       qty_total,
       harga_total,
-      ket_order == null ? "" : ket_order,
+      temp_diskon,
+      harga_total - (temp_diskon == null ? 0 : temp_diskon),
+      jenis_pembayaran,
+      0,
     ]);
-    //"INSERT INTO `order_sum`(`id_order`, `tanggal_order`,`tanggal_kirim`, `id_sales`, `id_lead`, qty_total ,total_order, `ket_order`)
-    //VALUES              ('INV/07112023/0001','2023-11-07-22:34:28','NaN-aN-aN','15490a2e-7764-421a-a10a-ac1d7f786911','8637aa66-69be-4c6f-b92a-0f26f8407894',14,1766,NULL)"
     const order_details = body.detail.map((item) => {
       return [
         uuidv4(),
@@ -97,16 +110,19 @@ const inputOrderSummary = async (body) => {
         item.id_barang,
         item.nama_barang,
         item.harga_barang,
-        item.harga_diskon == null ? 0 : item.harga_diskon,
         item.qty_barang,
-        item.sub_total - (item.harga_diskon == null ? 0 : item.harga_diskon),
+        item.sub_total,
         item.catatan_order == null ? "" : item.catatan_order,
       ];
     });
-    const query2 = `INSERT INTO ${process.env.DB_NAME}.order_detail(id_order_detail, id_order, id_barang, nama_barang, harga_barang_order, harga_diskon, qty_barang, sub_total, catatan_order) VALUES ?`;
+    const query2 = `INSERT INTO ${process.env.DB_NAME}.order_detail(id_order_detail, id_order, id_barang, nama_barang, harga_barang_order, qty_barang, sub_total, catatan_order) VALUES ?`;
     const result2 = await connection.query(query2, [order_details]);
     const query3 = `UPDATE ${process.env.DB_NAME}.lead set status=1 where id_lead='${id_lead}'`;
     await connection.query(query3);
+    for (let i = 0; i < body.detail.length; i++) {
+      const query4 = `UPDATE ${process.env.DB_NAME}.barang set qty_terjual = qty_terjual+${body.detail[i].qty_barang} WHERE id_barang='${body.detail[i].id_barang}'`;
+      await connection.query(query4);
+    }
     await connection.commit();
     return [result1, result2];
   } catch (error) {
@@ -139,7 +155,7 @@ const daftarPesanan = async (body) => {
         sub_total,
       ];
     });
-    const query1 = `INSERT INTO '${process.env.DB_NAME}.daftarpesanan'('id_cart', 'id_sales','id_lead', qty_total, harga_total, status) VALUES (?,?,?,?,?,?)`;
+    const query1 = `INSERT INTO ${process.env.DB_NAME}.daftarpesanan(id_cart, id_sales,id_lead, qty_total, harga_total, status) VALUES (?,?,?,?,?,?)`;
     const result1 = await connection.query(query1, [
       id_cart,
       id_sales,
@@ -148,12 +164,13 @@ const daftarPesanan = async (body) => {
       total,
       status,
     ]);
-    const query2 = `INSERT INTO '${process.env.DB_NAME}.daftarpesanan_detail'('id_cart_detail', 'id_cart', 'id_barang', 'nama_barang', harga_barang, qty_barang, sub_total) VALUES ?`;
+    const query2 = `INSERT INTO ${process.env.DB_NAME}.daftarpesanan_detail(id_cart_detail, id_cart, id_barang, nama_barang, harga_barang, qty_barang, sub_total) VALUES ?`;
     const result2 = await connection.query(query2, [daftarpesanan_details]);
     await connection.commit();
     return [result1, result2];
   } catch (error) {
     await connection.rollback();
+    console.log(error);
     dbpool.releaseConnection();
     return error;
   }
@@ -162,6 +179,40 @@ const daftarPesanan = async (body) => {
 const getDaftarpesanan_idsales = (id_sales, id_lead) => {
   const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.daftarpesanan dp JOIN ${process.env.DB_NAME}.daftarpesanan_detail dpd ON dp.id_cart=dpd.id_cart JOIN freedb_database_ta.barang b ON b.id_barang=dpd.id_barang JOIN freedb_database_ta.lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
   return dbpool.execute(query);
+};
+
+const countDaftarpesanan = (id_sales) => {
+  const query = `SELECT COUNT(*) as jml from ${process.env.DB_NAME}.daftarpesanan WHERE id_sales = '${id_sales}'`;
+  return dbpool.execute(query);
+};
+
+const countPesananTerproses = (id_sales) => {
+  const query = `SELECT COUNT(*) as jml from ${process.env.DB_NAME}.order_sum WHERE id_sales = '${id_sales}' AND status=0`;
+  return dbpool.execute(query);
+};
+
+const countPesananSelesai = (id_sales) => {
+  const query = `SELECT COUNT(*) as jml from ${process.env.DB_NAME}.order_sum WHERE id_sales = '${id_sales}' AND status=1`;
+  return dbpool.execute(query);
+};
+
+const countOrderperhari = (id_sales, tanggal_start, tanggal_end) => {
+  try {
+    console.log(tanggal_start);
+    var string = `select DATE('${tanggal_start}') as date `;
+    for (var i = 0; i < 6; i++) {
+      var temp_date = new Date(tanggal_start);
+      temp_date.setDate(temp_date.getDate() + (i + 1));
+      string += ` union all select DATE('${moment(temp_date).format(
+        "YYYY-MM-DD"
+      )}')`;
+    }
+    const query = `SELECT dates.date,IFNULL(COUNT(os.id_order),0) AS dc FROM (${string}) as dates LEFT JOIN ${process.env.DB_NAME}.order_sum os ON dates.date = DATE(os.tanggal_order) AND os.id_sales = '${id_sales}' GROUP BY dates.date ORDER BY dates.date`;
+    console.log(query);
+    return dbpool.execute(query);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const cekDaftarPesanan = async (id_sales, id_lead) => {
@@ -213,12 +264,13 @@ const updateCart = async (body) => {
       await connection.commit();
       return [result1, result2];
     } else {
-      const query2 = `INSERT INTO '${process.env.DB_NAME}.daftarpesanan_detail'('id_cart_detail', 'id_cart', 'id_barang', 'nama_barang', harga_barang, qty_barang, sub_total) VALUES ?`;
+      const query2 = `INSERT INTO ${process.env.DB_NAME}.daftarpesanan_detail(id_cart_detail,id_cart,id_barang,nama_barang, harga_barang, qty_barang, sub_total) VALUES ?`;
       const result2 = await connection.query(query2, [daftarpesanan_details]);
       await connection.commit();
       return [result1, result2];
     }
   } catch (error) {
+    console.log(error);
     await connection.rollback();
     dbpool.releaseConnection();
   }
@@ -237,6 +289,7 @@ const DeleteAllCart = async (id_lead) => {
     }
     return null;
   } catch (error) {
+    console.log(error);
     return error;
   }
 };
@@ -260,6 +313,7 @@ const deleteDetailCart = async (id_cart, id_cart_detail) => {
     const query4 = `UPDATE ${process.env.DB_NAME}.daftarpesanan SET qty_total=qty_total-${qtytemp}, harga_total=harga_total-${subtotaltemp}`;
     return dbpool.execute(query4);
   } catch (error) {
+    console.log(error);
     return error;
   }
 };
@@ -303,6 +357,7 @@ const cartMinus = async (id_cart, id_cart_detail) => {
     }`;
     return dbpool.execute(query4);
   } catch (error) {
+    console.log(error);
     return error;
   }
 };
@@ -324,6 +379,7 @@ const cartPlus = async (id_cart, id_cart_detail) => {
     }`;
     return dbpool.execute(query2);
   } catch (error) {
+    console.log(error);
     return error;
   }
 };
@@ -343,4 +399,8 @@ module.exports = {
   cartPlus,
   getOrder_detail,
   getOrderSum_by_idOrder,
+  countDaftarpesanan,
+  countPesananSelesai,
+  countPesananTerproses,
+  countOrderperhari,
 };

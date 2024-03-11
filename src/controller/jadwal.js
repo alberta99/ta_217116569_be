@@ -45,7 +45,62 @@ const getJadwalByIDsales = async (req, res) => {
   }
 };
 
+const getJadwalByIDJadwal = async (req, res) => {
+  const idjadwal = req.params.idjadwal;
+  try {
+    const data = await jadwalModel.getJadwalByIDJadwal(idjadwal);
+    const jadwal = data[0][0];
+    if (!jadwal) {
+      return res.status(404).json({
+        message: "Jadwal Not Found",
+        data: null,
+      });
+    }
+    return res.json({
+      message: "Get Jadwal By ID Jadwal Sukses",
+      data: data[0][0],
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
+const getJadwalByTanggalidSales = async (req, res) => {
+  const id_sales = req.params.id_sales;
+  const tanggal = req.params.tanggal;
+  try {
+    const data = await jadwalModel.getJadwalByTanggalidSales(id_sales, tanggal);
+    const jadwal = data[0];
+    if (!jadwal) {
+      return res.status(404).json({
+        message: "Jadwal Tidak Ada",
+        data: null,
+      });
+    }
+    return res.json({
+      message: "Get Jadwal By Tanggal Sukses",
+      data: jadwal.map((item) => {
+        return {
+          ...item,
+          tanggal_kunjungan: moment(item.tanggal_kunjungan).format("LLLL"),
+        };
+      }),
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
 module.exports = {
   insertJadwal,
   getJadwalByIDsales,
+  getJadwalByIDJadwal,
+  getJadwalByTanggalidSales,
 };

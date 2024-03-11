@@ -34,13 +34,13 @@ const getOrder_detail = async (req, res) => {
 const getOrderSum_by_idOrder = async (req, res) => {
   const id_order = req.params.id_order;
   try {
-    const [data] = await orderModel.getOrderSum_by_idOrder(id_order);
+    const data = await orderModel.getOrderSum_by_idOrder(id_order);
     return res.json({
       message: "Get Order Summary success",
-      data: data,
+      data: data[0][0],
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(404).json({
       message: "Server error",
       serverMessage: error,
     });
@@ -88,6 +88,76 @@ const inputOrderSummary = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Input order gagal",
+      serverMessage: error,
+    });
+  }
+};
+
+const countDaftarpesanan = async (req, res) => {
+  try {
+    const id_sales = req.params.id_sales;
+    const data = await orderModel.countDaftarpesanan(id_sales);
+    return res.json({
+      message: "Get Cart Count Sukses",
+      data: data[0][0],
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
+const countPesananTerproses = async (req, res) => {
+  try {
+    const id_sales = req.params.id_sales;
+    const data = await orderModel.countPesananTerproses(id_sales);
+    return res.json({
+      message: "Get count pesanan terproses sukses",
+      data: data[0][0],
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
+const countPesananSelesai = async (req, res) => {
+  try {
+    const id_sales = req.params.id_sales;
+    const data = await orderModel.countPesananSelesai(id_sales);
+    return res.json({
+      message: "Get count pesanan selesai sukses",
+      data: data[0][0],
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
+const countOrderperhari = async (req, res) => {
+  try {
+    const id_sales = req.params.id_sales;
+    const tgl_start = req.params.tgl_start;
+    const tgl_end = req.params.tgl_end;
+    const [data] = await orderModel.countOrderperhari(
+      id_sales,
+      tgl_start,
+      tgl_end
+    );
+    return res.json({
+      message: "Get count order per hari selesai sukses",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
       serverMessage: error,
     });
   }
@@ -141,7 +211,7 @@ const getDaftarpesanan_idsales = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(403).json({
       message: "Server error",
       serverMessage: error,
     });
@@ -256,4 +326,8 @@ module.exports = {
   cartPlus,
   getOrder_detail,
   getOrderSum_by_idOrder,
+  countDaftarpesanan,
+  countPesananSelesai,
+  countPesananTerproses,
+  countOrderperhari,
 };
