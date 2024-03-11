@@ -101,19 +101,19 @@ const getAllOrderByTanggal = (tanggal_start, tanggal_end) => {
 };
 
 const getConversionRate = () => {
-  const query = `SELECT (SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE STATUS=1) AS cust, (SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE STATUS=0) AS lead`;
+  const query = `SELECT (SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE STATUS=1) AS 'cust', (SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE STATUS=0) AS 'lead'`;
   return dbpool.execute(query);
 };
 
 const getConversionRateBySales = () => {
   const query = `SELECT 
     s.nama_sales,
-    COALESCE((SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE STATUS=1 AND id_sales = l.id_sales), 0) AS cust,
-    COALESCE((SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE STATUS=0 AND id_sales = l.id_sales), 0) AS lead,
+    COALESCE((SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE STATUS=1 AND id_sales = l.id_sales), 0) AS 'cust',
+    COALESCE((SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE STATUS=0 AND id_sales = l.id_sales), 0) AS 'lead',
     CASE 
       WHEN COALESCE((SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE id_sales = l.id_sales), 0) = 0 THEN 0
       ELSE ROUND((COALESCE((SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE STATUS=1 AND id_sales = l.id_sales), 0) / COALESCE((SELECT COUNT(*) FROM ${process.env.DB_NAME}.LEAD WHERE id_sales = l.id_sales), 0)) * 100, 2)
-    END AS conversion_rate
+    END AS 'conversion_rate'
   FROM
     ${process.env.DB_NAME}.salesperson s
   LEFT JOIN
