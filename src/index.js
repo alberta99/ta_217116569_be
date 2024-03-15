@@ -36,6 +36,9 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.get("/", (req, res) => {
+  return res.json("Hai");
+});
 app.use("/lead", leadRoutes);
 app.use("/barang", barangRoutes);
 app.use("/salesperson", salesRoutes);
