@@ -7,13 +7,23 @@ cloudinary.config({
 });
 
 const getAllBarang = () => {
-  const query = `SELECT * FROM ${process.env.DB_NAME}.barang where deleted = 1`;
-  return dbpool.execute(query);
+  try {
+    const query = `SELECT * FROM ${process.env.DB_NAME}.barang where deleted = 1`;
+    return dbpool.execute(query);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
 };
 
 const getBarangByID = (id_barang) => {
-  const query = `SELECT nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, qty_terjual FROM ${process.env.DB_NAME}.barang WHERE id_barang='${id_barang}'`;
-  return dbpool.execute(query);
+  try {
+    const query = `SELECT nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, qty_terjual FROM ${process.env.DB_NAME}.barang WHERE id_barang='${id_barang}'`;
+    return dbpool.execute(query);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
 };
 
 const insertBarang = (body) => {
