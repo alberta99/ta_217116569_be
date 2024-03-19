@@ -177,7 +177,7 @@ const daftarPesanan = async (body) => {
 };
 
 const getDaftarpesanan_idsales = (id_sales, id_lead) => {
-  const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.daftarpesanan dp JOIN ${process.env.DB_NAME}.daftarpesanan_detail dpd ON dp.id_cart=dpd.id_cart JOIN freedb_database_ta.barang b ON b.id_barang=dpd.id_barang JOIN freedb_database_ta.lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
+  const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.daftarpesanan dp JOIN ${process.env.DB_NAME}.daftarpesanan_detail dpd ON dp.id_cart=dpd.id_cart JOIN ${process.env.DB_NAME}.barang b ON b.id_barang=dpd.id_barang JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
   return dbpool.execute(query);
 };
 
@@ -198,7 +198,6 @@ const countPesananSelesai = (id_sales) => {
 
 const countOrderperhari = (id_sales, tanggal_start, tanggal_end) => {
   try {
-    console.log(tanggal_start);
     var string = `select DATE('${tanggal_start}') as date `;
     for (var i = 0; i < 6; i++) {
       var temp_date = new Date(tanggal_start);
@@ -208,7 +207,6 @@ const countOrderperhari = (id_sales, tanggal_start, tanggal_end) => {
       )}')`;
     }
     const query = `SELECT dates.date,IFNULL(COUNT(os.id_order),0) AS dc FROM (${string}) as dates LEFT JOIN ${process.env.DB_NAME}.order_sum os ON dates.date = DATE(os.tanggal_order) AND os.id_sales = '${id_sales}' GROUP BY dates.date ORDER BY dates.date`;
-    console.log(query);
     return dbpool.execute(query);
   } catch (error) {
     console.log(error);

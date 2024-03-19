@@ -22,6 +22,22 @@ const getAllBarang = async (req, res) => {
   }
 };
 
+const cekBarangkembar = async (req, res) => {
+  try {
+    const { body } = req;
+    const data = await barangModel.cekBarangkembar(body);
+    return res.json({
+      message: "Cek Barang Kembar Sukses",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
 const getBarangByID = async (req, res) => {
   const product_id = req.params.product_id;
   try {
@@ -142,4 +158,5 @@ module.exports = {
   getBarangByID,
   updateBarang,
   deleteBarang,
+  cekBarangkembar,
 };

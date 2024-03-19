@@ -35,6 +35,7 @@ router.get("/", barangController.getAllBarang);
 //Register barang
 router.post("/", upload, barangController.insertBarang);
 router.get("/:product_id", barangController.getBarangByID);
+router.post("/cekkembar", barangController.cekBarangkembar);
 router.put("/:product_id", upload, barangController.updateBarang);
 router.put("/del/:product_id", barangController.deleteBarang);
 

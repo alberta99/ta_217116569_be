@@ -1,7 +1,8 @@
 const dbpool = require("../config/dbconfig");
 const { v4: uuidv4 } = require("uuid");
 
-const insertJadwal = (body) => {
+const insertJadwal = async (body) => {
+  const connection = await dbpool.getConnection();
   const { id_sales, id_lead, tanggal_kunjungan, catatan_kunjungan } = body;
   const id_jadwal = uuidv4();
   const date = new Date(tanggal_kunjungan);
@@ -19,7 +20,9 @@ const insertJadwal = (body) => {
     ("00" + date.getSeconds()).slice(-2);
   const query = `INSERT INTO ${process.env.DB_NAME}.jadwal(id_jadwal, id_lead, id_sales, tanggal_kunjungan,catatan_kunjungan) VALUES (?,?,?,?,?)`;
   const data = [id_jadwal, id_lead, id_sales, temp_date, catatan_kunjungan];
-  return dbpool.execute(query, data);
+  var execute = connection.query(query, data);
+  connection.release();
+  return execute;
 };
 
 const getJadwalByIDsales = (id_sales) => {
