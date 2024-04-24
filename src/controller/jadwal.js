@@ -18,6 +18,8 @@ const insertJadwal = async (req, res) => {
 
 const getJadwalByIDsales = async (req, res) => {
   const id_sales = req.params.id_sales;
+  var idLocale = require("moment/locale/id");
+  moment.locale("id,", idLocale);
   try {
     const data = await jadwalModel.getJadwalByIDsales(id_sales);
     const jadwal = data[0];
@@ -32,7 +34,9 @@ const getJadwalByIDsales = async (req, res) => {
       data: jadwal.map((item) => {
         return {
           ...item,
-          tanggal_kunjungan: moment(item.tanggal_kunjungan).format("LLLL"),
+          tanggal_kunjungan: moment(item.tanggal_kunjungan)
+            .locale("id")
+            .format("LLLL"),
         };
       }),
     });
@@ -69,6 +73,8 @@ const getJadwalByIDJadwal = async (req, res) => {
 };
 
 const getJadwalByTanggalidSales = async (req, res) => {
+  var idLocale = require("moment/locale/id");
+  moment.locale("id,", idLocale);
   const id_sales = req.params.id_sales;
   const tanggal = req.params.tanggal;
   try {
@@ -85,7 +91,9 @@ const getJadwalByTanggalidSales = async (req, res) => {
       data: jadwal.map((item) => {
         return {
           ...item,
-          tanggal_kunjungan: moment(item.tanggal_kunjungan).format("LLLL"),
+          tanggal_kunjungan: moment(item.tanggal_kunjungan)
+            .locale("id")
+            .format("LLLL"),
         };
       }),
     });

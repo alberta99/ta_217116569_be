@@ -11,6 +11,12 @@ const getLeadByID = (id_lead) => {
   return dbpool.execute(query);
 };
 
+const changePassword = (id_lead, body) => {
+  const { passwordbaru } = body;
+  const query = `UPDATE ${process.env.DB_NAME}.lead SET password_lead='${passwordbaru}' WHERE id_lead='${id_lead}'`;
+  return dbpool.execute(query);
+};
+
 const getLeadByIDsales = (id_sales) => {
   const query = `SELECT l.id_lead,l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1 AND l.id_sales='${id_sales}'`;
   return dbpool.execute(query);
@@ -103,4 +109,5 @@ module.exports = {
   updateLead,
   deleteLead,
   getLeadByIDsales,
+  changePassword,
 };

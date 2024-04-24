@@ -1,20 +1,22 @@
 const dbpool = require("../config/dbconfig");
-const getLeadBySalesTanggal = (id_sales, tanggal_start, tanggal_end) => {
-  const query = `
-    SELECT 
-        l.id_lead,l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales 
-    FROM 
-        ${process.env.DB_NAME}.lead l 
-    JOIN 
-        ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales 
-    WHERE 
-        l.deleted = 1 
-    AND 
-        l.id_sales LIKE '${id_sales}' 
-    AND 
-        DATE(l.tgl_join_lead)>=DATE('${tanggal_start}')
-    AND 
-        DATE(l.tgl_join_lead)<=DATE('${tanggal_end}')`;
+const getLaporanLeadMasuk = () => {
+  const query = `SELECT 
+    l.nama_lead,
+    l.nama_perusahaan,
+    l.alamat_lead,
+    l.nohp_lead,
+    l.email_lead,
+    l.tgl_join_lead,
+    l.id_sales, 
+    s.nama_sales 
+  FROM 
+    ${process.env.DB_NAME}.lead l 
+  JOIN 
+    ${process.env.DB_NAME}.salesperson s 
+  ON 
+    l.id_sales=s.id_sales 
+  WHERE 
+    l.deleted = 1`;
   console.log(query);
   return dbpool.execute(query);
 };
@@ -127,7 +129,7 @@ const getConversionRateBySales = () => {
 };
 
 module.exports = {
-  getLeadBySalesTanggal,
+  getLaporanLeadMasuk,
   getAllSales,
   getAllOrder,
   getAllOrderByTanggal,

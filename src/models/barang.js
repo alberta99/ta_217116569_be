@@ -33,14 +33,13 @@ const getBarangByID = async (id_barang) => {
   return data;
 };
 
-const cekBarangkembar = async (body) => {
+const cekBarangkembar = async (nama) => {
   const connection = await dbpool.getConnection();
-  const { nama_barang } = body;
-  const checkkembar = `SELECT COUNT(*) as 'check' FROM barang where LOWER(nama_barang) = LOWER('${nama_barang}')`;
+  const checkkembar = `SELECT COUNT(*) as cek FROM barang where LOWER(nama_barang) = LOWER('${nama}')`;
   var cekkembar = await connection.query(checkkembar);
-  var kembar = parseInt(cekkembar[0][0].check);
-  return kembar;
+  return cekkembar[0][0].cek;
 };
+
 const insertBarang = async (body) => {
   const connection = await dbpool.getConnection();
   try {
@@ -53,55 +52,72 @@ const insertBarang = async (body) => {
       gambar2_barang,
       gambar3_barang,
     } = body;
-    const id_barang = uuidv4();
-    const query = `INSERT INTO ${process.env.DB_NAME}.barang(id_barang, nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, deleted,qty_terjual) VALUES (?,?,?,?,?,?,?,?,?,?)`;
-    const data = [
-      id_barang,
-      nama_barang,
-      jenis_barang,
-      detail_barang,
-      harga_barang,
-      gambar1_barang,
-      gambar2_barang,
-      gambar3_barang,
-      1,
-      0,
-    ];
-    connection.query(query, data);
+    const cekkembar = await cekBarangkembar(nama_barang);
+    if (parseInt(cekkembar) > 0) {
+      throw new Error("Nama produk tidak boleh kembar");
+    } else {
+      const id_barang = uuidv4();
+      const query = `INSERT INTO ${process.env.DB_NAME}.barang(id_barang, nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, deleted,qty_terjual) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+      const data = [
+        id_barang,
+        nama_barang,
+        jenis_barang,
+        detail_barang,
+        harga_barang,
+        gambar1_barang,
+        gambar2_barang,
+        gambar3_barang,
+        1,
+        0,
+      ];
+      connection.query(query, data);
+    }
   } catch (error) {
-    console.log(error);
+    throw error;
   } finally {
     connection.release();
   }
 };
 
 const updateBarang = async (id_barang, body) => {
-  var {
-    nama_barang,
-    detail_barang,
-    jenis_barang,
-    harga_barang,
-    gambar1_barang,
-    gambar2_barang,
-    gambar3_barang,
-  } = body;
-  const selectgambar = `SELECT gambar1_barang,gambar2_barang,gambar3_barang FROM ${process.env.DB_NAME}.barang WHERE id_barang = '${id_barang}'`;
-  const res = await dbpool.execute(selectgambar);
-  const gambar1_temp = res[0][0].gambar1_barang;
-  const gambar2_temp = res[0][0].gambar2_barang;
-  const gambar3_temp = res[0][0].gambar3_barang;
-  if (gambar1_barang === "") {
-    gambar1_barang = gambar1_temp;
+  const connection = await dbpool.getConnection();
+  try {
+    var {
+      nama_barang,
+      detail_barang,
+      jenis_barang,
+      harga_barang,
+      gambar1_barang,
+      gambar2_barang,
+      gambar3_barang,
+    } = body;
+    const cekkembar = await cekBarangkembar(nama_barang);
+    if (parseInt(cekkembar) > 0) {
+      throw new Error("Nama produk tidak boleh kembar");
+    } else {
+      const selectgambar = `SELECT gambar1_barang,gambar2_barang,gambar3_barang FROM ${process.env.DB_NAME}.barang WHERE id_barang = '${id_barang}'`;
+      const res = await connection.query(selectgambar);
+      const gambar1_temp = res[0][0].gambar1_barang;
+      const gambar2_temp = res[0][0].gambar2_barang;
+      const gambar3_temp = res[0][0].gambar3_barang;
+      if (gambar1_barang === "") {
+        gambar1_barang = gambar1_temp;
+      }
+      if (gambar2_barang === "") {
+        gambar2_barang = gambar2_temp;
+      }
+      if (gambar3_barang === "") {
+        gambar3_barang = gambar3_temp;
+      }
+      const query = `UPDATE ${process.env.DB_NAME}.barang SET nama_barang='${nama_barang}',jenis_barang='${jenis_barang}',detail_barang='${detail_barang}',harga_barang=${harga_barang},gambar1_barang='${gambar1_barang}',gambar2_barang='${gambar2_barang}',gambar3_barang='${gambar3_barang}'
+      WHERE id_barang = '${id_barang}'`;
+      connection.query(query);
+    }
+  } catch (error) {
+    throw error;
+  } finally {
+    connection.release();
   }
-  if (gambar2_barang === "") {
-    gambar2_barang = gambar2_temp;
-  }
-  if (gambar3_barang === "") {
-    gambar3_barang = gambar3_temp;
-  }
-  const query = `UPDATE ${process.env.DB_NAME}.barang SET nama_barang='${nama_barang}',jenis_barang='${jenis_barang}',detail_barang='${detail_barang}',harga_barang=${harga_barang},gambar1_barang='${gambar1_barang}',gambar2_barang='${gambar2_barang}',gambar3_barang='${gambar3_barang}'
-  WHERE id_barang = '${id_barang}'`;
-  return dbpool.execute(query);
 };
 
 const deleteBarang = async (id_barang) => {
@@ -118,5 +134,4 @@ module.exports = {
   getBarangByID,
   updateBarang,
   deleteBarang,
-  cekBarangkembar,
 };

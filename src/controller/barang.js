@@ -22,22 +22,6 @@ const getAllBarang = async (req, res) => {
   }
 };
 
-const cekBarangkembar = async (req, res) => {
-  try {
-    const { body } = req;
-    const data = await barangModel.cekBarangkembar(body);
-    return res.json({
-      message: "Cek Barang Kembar Sukses",
-      data: data,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server error",
-      serverMessage: error,
-    });
-  }
-};
-
 const getBarangByID = async (req, res) => {
   const product_id = req.params.product_id;
   try {
@@ -64,6 +48,7 @@ const getBarangByID = async (req, res) => {
 const insertBarang = async (req, res) => {
   try {
     const { body } = req;
+    await barangModel.insertBarang(body);
     if (req.files["gambar_1"]) {
       var result = await cloudinary.uploader.upload(
         req.files["gambar_1"][0].path
@@ -82,15 +67,13 @@ const insertBarang = async (req, res) => {
       );
       body["gambar3_barang"] = result.secure_url;
     }
-    await barangModel.insertBarang(body);
-    return res.status(200).json({
+    res.status(200).json({
       message: "Insert Barang Berhasil",
     });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
+    res.status(400).json({
       message: "Insert Barang gagal",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -118,19 +101,18 @@ const updateBarang = async (req, res) => {
       var result = await cloudinary.uploader.upload(
         req.files["gambar_3"][0].path
       );
-      console.log(result);
       body["gambar3_barang"] = result.secure_url;
     } else {
       body["gambar3_barang"] = "";
     }
     await barangModel.updateBarang(req.params.product_id, body);
-    return res.status(200).json({
+    res.status(200).json({
       message: "Update Barang Berhasil",
     });
   } catch (error) {
-    return res.status(500).json({
+    res.status(400).json({
       message: "Update Barang gagal",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -158,5 +140,4 @@ module.exports = {
   getBarangByID,
   updateBarang,
   deleteBarang,
-  cekBarangkembar,
 };

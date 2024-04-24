@@ -45,4 +45,6 @@ router.put("/plusqty/:id_cart/:id_cart_detail", OrderController.cartPlus);
 router.get("/detailorder/:id_order", OrderController.getOrder_detail);
 router.get("/ordersumbyid/:id_order", OrderController.getOrderSum_by_idOrder);
 
+router.get("/orderbyidlead/:id_lead", OrderController.getOrder_byIdLead);
+
 module.exports = router;

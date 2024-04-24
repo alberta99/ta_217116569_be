@@ -18,4 +18,7 @@ router.put("/:lead_id", LeadController.updateLead);
 router.put("/del/:lead_id", LeadController.deleteLead);
 
 router.put("/", LeadController.updateLead);
+
+router.put("/changepassword/:id_lead", LeadController.changePassword);
+
 module.exports = router;

@@ -5,10 +5,7 @@ const laporanController = require("../controller/laporan");
 const router = express.Router();
 
 //Get All Sales
-router.get(
-  "/leadidsalestanggal/:id_sales/:tanggal_start/:tanggal_end",
-  laporanController.getLeadBySalesTanggal
-);
+router.get("/laporanleadmasuk", laporanController.getLaporanLeadMasuk);
 
 router.get("/allsales", laporanController.getAllSales);
 

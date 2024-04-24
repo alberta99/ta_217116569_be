@@ -27,6 +27,11 @@ const getOrder_detail = (id_order) => {
   return dbpool.execute(query);
 };
 
+const getOrder_byIdLead = (id_lead) => {
+  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_lead='${id_lead}'`;
+  return dbpool.execute(query);
+};
+
 async function generateOrderNumber() {
   let query = `SELECT COUNT(*) as orderCount FROM ${process.env.DB_NAME}.order_sum where date(tanggal_order) = CURRENT_DATE`;
   return dbpool.execute(query);
@@ -141,7 +146,7 @@ const daftarPesanan = async (body) => {
     const id_cart = uuidv4();
     let total = 0;
     let qty_temp = 0;
-    const daftarpesanan_details = body.detail.map((item) => {
+    const cart_details = body.detail.map((item) => {
       const sub_total = item.qty_barang * item.harga_barang;
       total += sub_total;
       qty_temp += item.qty_barang;
@@ -155,7 +160,7 @@ const daftarPesanan = async (body) => {
         sub_total,
       ];
     });
-    const query1 = `INSERT INTO ${process.env.DB_NAME}.daftarpesanan(id_cart, id_sales,id_lead, qty_total, harga_total, status) VALUES (?,?,?,?,?,?)`;
+    const query1 = `INSERT INTO ${process.env.DB_NAME}.cart(id_cart, id_sales,id_lead, qty_total, harga_total, status) VALUES (?,?,?,?,?,?)`;
     const result1 = await connection.query(query1, [
       id_cart,
       id_sales,
@@ -164,8 +169,8 @@ const daftarPesanan = async (body) => {
       total,
       status,
     ]);
-    const query2 = `INSERT INTO ${process.env.DB_NAME}.daftarpesanan_detail(id_cart_detail, id_cart, id_barang, nama_barang, harga_barang, qty_barang, sub_total) VALUES ?`;
-    const result2 = await connection.query(query2, [daftarpesanan_details]);
+    const query2 = `INSERT INTO ${process.env.DB_NAME}.cart_detail(id_cart_detail, id_cart, id_barang, nama_barang, harga_barang, qty_barang, sub_total) VALUES ?`;
+    const result2 = await connection.query(query2, [cart_details]);
     await connection.commit();
     return [result1, result2];
   } catch (error) {
@@ -177,12 +182,12 @@ const daftarPesanan = async (body) => {
 };
 
 const getDaftarpesanan_idsales = (id_sales, id_lead) => {
-  const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.daftarpesanan dp JOIN ${process.env.DB_NAME}.daftarpesanan_detail dpd ON dp.id_cart=dpd.id_cart JOIN ${process.env.DB_NAME}.barang b ON b.id_barang=dpd.id_barang JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
+  const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.cart dp JOIN ${process.env.DB_NAME}.cart_detail dpd ON dp.id_cart=dpd.id_cart JOIN ${process.env.DB_NAME}.barang b ON b.id_barang=dpd.id_barang JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
   return dbpool.execute(query);
 };
 
 const countDaftarpesanan = (id_sales) => {
-  const query = `SELECT COUNT(*) as jml from ${process.env.DB_NAME}.daftarpesanan WHERE id_sales = '${id_sales}'`;
+  const query = `SELECT COUNT(*) as jml from ${process.env.DB_NAME}.cart WHERE id_sales = '${id_sales}'`;
   return dbpool.execute(query);
 };
 
@@ -214,7 +219,7 @@ const countOrderperhari = (id_sales, tanggal_start, tanggal_end) => {
 };
 
 const cekDaftarPesanan = async (id_sales, id_lead) => {
-  const query = `SELECT * FROM ${process.env.DB_NAME}.daftarpesanan WHERE id_sales = '${id_sales}' AND id_lead='${id_lead}'`;
+  const query = `SELECT * FROM ${process.env.DB_NAME}.cart WHERE id_sales = '${id_sales}' AND id_lead='${id_lead}'`;
   return dbpool.execute(query);
 };
 
@@ -223,13 +228,13 @@ const updateCart = async (body) => {
   try {
     await connection.beginTransaction();
     const { id_sales, id_lead } = body;
-    const query3 = `SELECT id_cart, qty_total, harga_total FROM ${process.env.DB_NAME}.daftarpesanan WHERE id_sales = '${id_sales}' AND id_lead='${id_lead}'`;
+    const query3 = `SELECT id_cart, qty_total, harga_total FROM ${process.env.DB_NAME}.cart WHERE id_sales = '${id_sales}' AND id_lead='${id_lead}'`;
     const result3 = await connection.query(query3);
     let total = result3[0][0].harga_total;
     let qty_temp = result3[0][0].qty_total;
     let id_cart = result3[0][0].id_cart;
     let id_barang_temp = body.detail[0].id_barang;
-    const query4 = `SELECT qty_barang, sub_total FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart = '${id_cart}' AND id_barang='${id_barang_temp}'`;
+    const query4 = `SELECT qty_barang, sub_total FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart = '${id_cart}' AND id_barang='${id_barang_temp}'`;
     const result4 = await connection.query(query4);
 
     let sub_total_temp = 0;
@@ -254,15 +259,15 @@ const updateCart = async (body) => {
         sub_total,
       ];
     });
-    const query1 = `UPDATE ${process.env.DB_NAME}.daftarpesanan SET qty_total=${qty_temp}, harga_total=${total} WHERE id_sales = '${id_sales}' AND id_lead='${id_lead}'`;
+    const query1 = `UPDATE ${process.env.DB_NAME}.cart SET qty_total=${qty_temp}, harga_total=${total} WHERE id_sales = '${id_sales}' AND id_lead='${id_lead}'`;
     const result1 = await connection.query(query1, [qty_temp, total]);
     if (result3[0].length > 0 && result4[0].length > 0) {
-      const query2 = `UPDATE ${process.env.DB_NAME}.daftarpesanan_detail SET qty_barang=${qty_barang_temp}, sub_total=${sub_total_temp} WHERE id_cart='${id_cart}' AND id_barang = '${id_barang_temp}'`;
+      const query2 = `UPDATE ${process.env.DB_NAME}.cart_detail SET qty_barang=${qty_barang_temp}, sub_total=${sub_total_temp} WHERE id_cart='${id_cart}' AND id_barang = '${id_barang_temp}'`;
       const result2 = await connection.query(query2);
       await connection.commit();
       return [result1, result2];
     } else {
-      const query2 = `INSERT INTO ${process.env.DB_NAME}.daftarpesanan_detail(id_cart_detail,id_cart,id_barang,nama_barang, harga_barang, qty_barang, sub_total) VALUES ?`;
+      const query2 = `INSERT INTO ${process.env.DB_NAME}.cart_detail(id_cart_detail,id_cart,id_barang,nama_barang, harga_barang, qty_barang, sub_total) VALUES ?`;
       const result2 = await connection.query(query2, [daftarpesanan_details]);
       await connection.commit();
       return [result1, result2];
@@ -276,11 +281,11 @@ const updateCart = async (body) => {
 
 const DeleteAllCart = async (id_lead) => {
   try {
-    const queryselect = `SELECT * FROM ${process.env.DB_NAME}.daftarpesanan WHERE id_lead='${id_lead}'`;
+    const queryselect = `SELECT * FROM ${process.env.DB_NAME}.cart WHERE id_lead='${id_lead}'`;
     const select = await dbpool.execute(queryselect);
     if (select[0].length > 0) {
-      const query1 = `DELETE FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${select[0][0].id_cart}'`;
-      const query2 = `DELETE FROM ${process.env.DB_NAME}.daftarpesanan WHERE id_cart='${select[0][0].id_cart}'`;
+      const query1 = `DELETE FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${select[0][0].id_cart}'`;
+      const query2 = `DELETE FROM ${process.env.DB_NAME}.cart WHERE id_cart='${select[0][0].id_cart}'`;
       dbpool.execute(query1).then(() => {
         return dbpool.execute(query2);
       });
@@ -294,21 +299,21 @@ const DeleteAllCart = async (id_lead) => {
 
 const deleteDetailCart = async (id_cart, id_cart_detail) => {
   try {
-    const queryselect = `SELECT * FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${id_cart}'`;
+    const queryselect = `SELECT * FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${id_cart}'`;
     const select = await dbpool.execute(queryselect);
     if (select[0].length == 1) {
-      const query1 = `DELETE FROM ${process.env.DB_NAME}.daftarpesanan WHERE id_cart='${select[0][0].id_cart}'`;
+      const query1 = `DELETE FROM ${process.env.DB_NAME}.cart WHERE id_cart='${select[0][0].id_cart}'`;
       dbpool.execute(query1);
-      const query2 = `DELETE FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
+      const query2 = `DELETE FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
       return dbpool.execute(query2);
     }
-    const queryselect2 = `SELECT qty_barang, sub_total FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${id_cart}' AND id_cart_detail='${id_cart_detail}'`;
+    const queryselect2 = `SELECT qty_barang, sub_total FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${id_cart}' AND id_cart_detail='${id_cart_detail}'`;
     const select2 = await dbpool.execute(queryselect2);
     let subtotaltemp = select2[0][0].sub_total;
     let qtytemp = select2[0][0].qty_barang;
-    const query3 = `DELETE FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
+    const query3 = `DELETE FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
     dbpool.execute(query3);
-    const query4 = `UPDATE ${process.env.DB_NAME}.daftarpesanan SET qty_total=qty_total-${qtytemp}, harga_total=harga_total-${subtotaltemp}`;
+    const query4 = `UPDATE ${process.env.DB_NAME}.cart SET qty_total=qty_total-${qtytemp}, harga_total=harga_total-${subtotaltemp}`;
     return dbpool.execute(query4);
   } catch (error) {
     console.log(error);
@@ -318,39 +323,39 @@ const deleteDetailCart = async (id_cart, id_cart_detail) => {
 
 const cartMinus = async (id_cart, id_cart_detail) => {
   try {
-    const queryselect2 = `SELECT * FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${id_cart}'`;
+    const queryselect2 = `SELECT * FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${id_cart}'`;
     const select2 = await dbpool.execute(queryselect2);
-    const queryselect = `SELECT * FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${id_cart}' AND id_cart_detail='${id_cart_detail}'`;
+    const queryselect = `SELECT * FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${id_cart}' AND id_cart_detail='${id_cart_detail}'`;
     const select = await dbpool.execute(queryselect);
-    const queryselect3 = `SELECT * FROM ${process.env.DB_NAME}.daftarpesanan WHERE id_cart='${id_cart}'`;
+    const queryselect3 = `SELECT * FROM ${process.env.DB_NAME}.cart WHERE id_cart='${id_cart}'`;
     const select3 = await dbpool.execute(queryselect3);
     if (
       (select2[0][0].length == 1 && select[0][0].qty_barang == 1) ||
       (select3[0][0].qty_total == 1 && select[0][0].qty_barang == 1)
     ) {
-      const query1 = `DELETE FROM ${process.env.DB_NAME}.daftarpesanan WHERE id_cart='${select[0][0].id_cart}'`;
+      const query1 = `DELETE FROM ${process.env.DB_NAME}.cart WHERE id_cart='${select[0][0].id_cart}'`;
       dbpool.execute(query1);
-      const query2 = `DELETE FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
+      const query2 = `DELETE FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
       return dbpool.execute(query2);
     } else if (select[0][0].qty_barang <= 1) {
-      const query5 = `DELETE FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
+      const query5 = `DELETE FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${select[0][0].id_cart}' AND id_cart_detail='${id_cart_detail}'`;
       dbpool.execute(query5);
       const query6 = `UPDATE ${
         process.env.DB_NAME
-      }.daftarpesanan SET qty_total=qty_total-${1}, harga_total=harga_total-${
+      }.cart SET qty_total=qty_total-${1}, harga_total=harga_total-${
         select[0][0].harga_barang
       }`;
       return dbpool.execute(query6);
     }
     const query3 = `UPDATE ${
       process.env.DB_NAME
-    }.daftarpesanan_detail set qty_barang=qty_barang-${1}, sub_total=sub_total-harga_barang WHERE id_cart='${
+    }.cart_detail set qty_barang=qty_barang-${1}, sub_total=sub_total-harga_barang WHERE id_cart='${
       select[0][0].id_cart
     }' AND id_cart_detail='${id_cart_detail}'`;
     dbpool.execute(query3);
     const query4 = `UPDATE ${
       process.env.DB_NAME
-    }.daftarpesanan SET qty_total=qty_total-${1}, harga_total=harga_total-${
+    }.cart SET qty_total=qty_total-${1}, harga_total=harga_total-${
       select[0][0].harga_barang
     }`;
     return dbpool.execute(query4);
@@ -362,17 +367,17 @@ const cartMinus = async (id_cart, id_cart_detail) => {
 
 const cartPlus = async (id_cart, id_cart_detail) => {
   try {
-    const queryselect = `SELECT * FROM ${process.env.DB_NAME}.daftarpesanan_detail WHERE id_cart='${id_cart}' AND id_cart_detail='${id_cart_detail}'`;
+    const queryselect = `SELECT * FROM ${process.env.DB_NAME}.cart_detail WHERE id_cart='${id_cart}' AND id_cart_detail='${id_cart_detail}'`;
     const select = await dbpool.execute(queryselect);
     const query1 = `UPDATE ${
       process.env.DB_NAME
-    }.daftarpesanan_detail set qty_barang=qty_barang+${1}, sub_total=sub_total+harga_barang WHERE id_cart='${
+    }.cart_detail set qty_barang=qty_barang+${1}, sub_total=sub_total+harga_barang WHERE id_cart='${
       select[0][0].id_cart
     }' AND id_cart_detail='${id_cart_detail}'`;
     dbpool.execute(query1);
     const query2 = `UPDATE ${
       process.env.DB_NAME
-    }.daftarpesanan SET qty_total=qty_total+${1}, harga_total=harga_total+${
+    }.cart SET qty_total=qty_total+${1}, harga_total=harga_total+${
       select[0][0].harga_barang
     }`;
     return dbpool.execute(query2);
@@ -401,4 +406,5 @@ module.exports = {
   countPesananSelesai,
   countPesananTerproses,
   countOrderperhari,
+  getOrder_byIdLead,
 };

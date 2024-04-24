@@ -11,7 +11,22 @@ const getAllLead = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Server error",
-      serverMessage: error,
+      serverMessage: error.message,
+    });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const { body } = req;
+    await leadModel.changePassword(req.params.id_lead, body);
+    return res.status(200).json({
+      message: "Ganti Password Berhasil",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Ganti Password gagal",
+      serverMessage: error.message,
     });
   }
 };
@@ -27,7 +42,7 @@ const getLeadByID = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Server error",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -43,7 +58,7 @@ const getLeadByIDsales = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Server error",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -58,7 +73,7 @@ const registerLead = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Register gagal",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -73,7 +88,7 @@ const updateLead = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Update Lead gagal",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -90,7 +105,7 @@ const deleteLead = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Server error",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -102,4 +117,5 @@ module.exports = {
   getLeadByID,
   deleteLead,
   getLeadByIDsales,
+  changePassword,
 };

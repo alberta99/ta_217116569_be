@@ -1,23 +1,24 @@
+const moment = require("moment");
 const laporanModel = require("../models/laporan");
+var idLocale = require("moment/locale/id");
+moment.locale("id,", idLocale);
 
-const getLeadBySalesTanggal = async (req, res) => {
-  const id_sales = req.params.id_sales;
-  const tgl_start = req.params.tanggal_start;
-  const tgl_end = req.params.tanggal_end;
+const getLaporanLeadMasuk = async (req, res) => {
   try {
-    const [data] = await laporanModel.getLeadBySalesTanggal(
-      id_sales,
-      tgl_start,
-      tgl_end
-    );
+    const [data] = await laporanModel.getLaporanLeadMasuk();
     return res.json({
-      message: "Get Lead By ID Sales & Tanggal Sukses",
-      data: data,
+      message: "Get Laporan Lead Masuk Sukses",
+      data: data.map((item) => {
+        return {
+          ...item,
+          tgl_join_lead: moment(item.tgl_join_lead).locale("id").format("LLLL"),
+        };
+      }),
     });
   } catch (error) {
     return res.status(500).json({
       message: "Server error",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -39,15 +40,20 @@ const getAllSales = async (req, res) => {
 
 const getAllOrder = async (req, res) => {
   try {
-    const data = await laporanModel.getAllOrder();
+    const [data] = await laporanModel.getAllOrder();
     res.json({
       message: "Get All Order Sukses",
-      data: data[0],
+      data: data.map((item) => {
+        return {
+          ...item,
+          tanggal_order: moment(item.tanggal_order).locale("id").format("LLLL"),
+        };
+      }),
     });
   } catch (error) {
     res.status(500).json({
       message: "Server error",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -103,7 +109,7 @@ const getAllOrderByTanggal = async (req, res) => {
 };
 
 module.exports = {
-  getLeadBySalesTanggal,
+  getLaporanLeadMasuk,
   getAllSales,
   getAllOrder,
   getAllOrderByTanggal,

@@ -63,6 +63,22 @@ const getAllOrder_idsales = async (req, res) => {
   }
 };
 
+const getOrder_byIdLead = async (req, res) => {
+  const id_lead = req.params.id_lead;
+  try {
+    const [data] = await orderModel.getOrder_byIdLead(id_lead);
+    return res.json({
+      message: "Get Order By ID Lead success",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error.message,
+    });
+  }
+};
+
 const getAllOrder_Sum = async (req, res) => {
   try {
     const [data] = await orderModel.getAllOrder_sum();
@@ -213,7 +229,7 @@ const getDaftarpesanan_idsales = async (req, res) => {
   } catch (error) {
     return res.status(403).json({
       message: "Server error",
-      serverMessage: error,
+      serverMessage: error.message,
     });
   }
 };
@@ -330,4 +346,5 @@ module.exports = {
   countPesananSelesai,
   countPesananTerproses,
   countOrderperhari,
+  getOrder_byIdLead,
 };
