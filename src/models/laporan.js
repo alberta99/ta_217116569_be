@@ -2,7 +2,7 @@ const dbpool = require("../config/dbconfig");
 const getLaporanLeadMasuk = () => {
   const query = `SELECT 
     l.nama_lead,
-    l.nama_perusahaan,
+    l.nama_toko,
     l.alamat_lead,
     l.nohp_lead,
     l.email_lead,
@@ -53,7 +53,7 @@ const getAllOrder = () => {
   o.tanggal_order,
   s.nama_sales,
   l.nama_lead,
-  l.nama_perusahaan,
+  l.nama_toko,
   o.qty_total,
   o.sub_total_order,
   o.harga_diskon,
@@ -79,7 +79,7 @@ const getAllOrderByTanggal = (tanggal_start, tanggal_end) => {
     o.tanggal_order,
     s.nama_sales,
     l.nama_lead,
-    l.nama_perusahaan,
+    l.nama_toko,
     o.qty_total,
     o.sub_total_order,
     o.harga_diskon,
@@ -124,7 +124,6 @@ const getConversionRateBySales = () => {
   GROUP BY 
     s.id_sales, s.nama_sales;
   `;
-  console.log(query);
   return dbpool.execute(query);
 };
 

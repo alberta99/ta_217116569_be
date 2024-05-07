@@ -48,25 +48,23 @@ const getBarangByID = async (req, res) => {
 const insertBarang = async (req, res) => {
   try {
     const { body } = req;
+    // Upload each image to Cloudinary and update the body object
+    const uploadAndUpdateImage = async (fieldName) => {
+      const result = await cloudinary.uploader.upload(
+        req.files[fieldName][0].path
+      );
+      body[`${fieldName}_barang`] = result.secure_url;
+      console.log(fieldName);
+    };
+
+    await Promise.all([
+      uploadAndUpdateImage("gambar_1"),
+      uploadAndUpdateImage("gambar_2"),
+      uploadAndUpdateImage("gambar_3"),
+    ]);
+
     await barangModel.insertBarang(body);
-    if (req.files["gambar_1"]) {
-      var result = await cloudinary.uploader.upload(
-        req.files["gambar_1"][0].path
-      );
-      body["gambar1_barang"] = result.secure_url;
-    }
-    if (req.files["gambar_2"]) {
-      var result = await cloudinary.uploader.upload(
-        req.files["gambar_2"][0].path
-      );
-      body["gambar2_barang"] = result.secure_url;
-    }
-    if (req.files["gambar_3"]) {
-      var result = await cloudinary.uploader.upload(
-        req.files["gambar_3"][0].path
-      );
-      body["gambar3_barang"] = result.secure_url;
-    }
+
     res.status(200).json({
       message: "Insert Barang Berhasil",
     });
@@ -81,35 +79,34 @@ const insertBarang = async (req, res) => {
 const updateBarang = async (req, res) => {
   try {
     const { body } = req;
-    if (req.files["gambar_1"]) {
-      var result = await cloudinary.uploader.upload(
-        req.files["gambar_1"][0].path
-      );
-      body["gambar1_barang"] = result.secure_url;
-    } else {
-      body["gambar1_barang"] = "";
-    }
-    if (req.files["gambar_2"]) {
-      var result = await cloudinary.uploader.upload(
-        req.files["gambar_2"][0].path
-      );
-      body["gambar2_barang"] = result.secure_url;
-    } else {
-      body["gambar2_barang"] = "";
-    }
-    if (req.files["gambar_3"]) {
-      var result = await cloudinary.uploader.upload(
-        req.files["gambar_3"][0].path
-      );
-      body["gambar3_barang"] = result.secure_url;
-    } else {
-      body["gambar3_barang"] = "";
-    }
-    await barangModel.updateBarang(req.params.product_id, body);
+    const productId = req.params.product_id;
+
+    // Upload and update image URLs
+    const uploadAndUpdateImage = async (fieldName) => {
+      if (req.files[fieldName]) {
+        const result = await cloudinary.uploader.upload(
+          req.files[fieldName][0].path
+        );
+        body[`${fieldName}_barang`] = result.secure_url;
+      } else {
+        body[`${fieldName}_barang`] = "";
+      }
+    };
+
+    await Promise.all([
+      uploadAndUpdateImage("gambar_1"),
+      uploadAndUpdateImage("gambar_2"),
+      uploadAndUpdateImage("gambar_3"),
+    ]);
+
+    // Update barang in the database
+    await barangModel.updateBarang(productId, body);
+
     res.status(200).json({
       message: "Update Barang Berhasil",
     });
   } catch (error) {
+    console.error("Error updating barang:", error);
     res.status(400).json({
       message: "Update Barang gagal",
       serverMessage: error.message,

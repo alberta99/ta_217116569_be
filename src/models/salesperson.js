@@ -44,7 +44,7 @@ const registerSales = (body) => {
       ("00" + date.getMinutes()).slice(-2) +
       ":" +
       ("00" + date.getSeconds()).slice(-2);
-    const query = `INSERT INTO ${process.env.DB_NAME}.salesperson(id_sales,tgl_join_sales ,nama_sales, alamat_sales, nohp_sales, email_sales,password_sales,status,deleted) VALUES (?,?,?,?,?,?,?,?,?)`;
+    const query = `INSERT INTO ${process.env.DB_NAME}.salesperson(id_sales,tgl_join_sales ,nama_sales, alamat_sales, nohp_sales, email_sales,password_sales,deleted) VALUES (?,?,?,?,?,?,?,?)`;
     const data = [
       id_sales,
       temp_date,
@@ -54,7 +54,6 @@ const registerSales = (body) => {
       email_sales,
       password_sales,
       1,
-      1,
     ];
     return dbpool.execute(query, data);
   } catch (error) {
@@ -63,7 +62,7 @@ const registerSales = (body) => {
 };
 
 const loginSales = (email, password) => {
-  const query = `select * from ${process.env.DB_NAME}.salesperson where email_sales = '${email}' AND password_sales = '${password}' AND status = 1 AND deleted = 1`;
+  const query = `select * from ${process.env.DB_NAME}.salesperson where email_sales = '${email}' AND password_sales = '${password}' AND deleted = 1`;
   return dbpool.execute(query);
 };
 

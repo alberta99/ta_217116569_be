@@ -41,41 +41,54 @@ const cekBarangkembar = async (nama) => {
 };
 
 const insertBarang = async (body) => {
-  const connection = await dbpool.getConnection();
+  let connection;
   try {
+    connection = await dbpool.getConnection();
     const {
       nama_barang,
       detail_barang,
       jenis_barang,
       harga_barang,
-      gambar1_barang,
-      gambar2_barang,
-      gambar3_barang,
+      gambar_1_barang,
+      gambar_2_barang,
+      gambar_3_barang,
     } = body;
+
     const cekkembar = await cekBarangkembar(nama_barang);
     if (parseInt(cekkembar) > 0) {
       throw new Error("Nama produk tidak boleh kembar");
     } else {
       const id_barang = uuidv4();
-      const query = `INSERT INTO ${process.env.DB_NAME}.barang(id_barang, nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, deleted,qty_terjual) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+      const query = `INSERT INTO ${process.env.DB_NAME}.barang(id_barang, nama_barang, jenis_barang, detail_barang, harga_barang, gambar1_barang, gambar2_barang, gambar3_barang, deleted, qty_terjual) VALUES (?,?,?,?,?,?,?,?,?,?)`;
       const data = [
         id_barang,
         nama_barang,
         jenis_barang,
         detail_barang,
         harga_barang,
-        gambar1_barang,
-        gambar2_barang,
-        gambar3_barang,
+        gambar_1_barang,
+        gambar_2_barang,
+        gambar_3_barang,
         1,
         0,
       ];
-      connection.query(query, data);
+
+      // Execute the query
+      await connection.query(query, data);
+
+      // Return something indicating success, or just return true
+      return true;
     }
   } catch (error) {
+    // Handle the error appropriately, such as logging it
+    console.error("Error inserting barang:", error);
+    // Rethrow the error to propagate it up the call stack
     throw error;
   } finally {
-    connection.release();
+    // Make sure to release the connection back to the pool even if an error occurs
+    if (connection) {
+      connection.release();
+    }
   }
 };
 

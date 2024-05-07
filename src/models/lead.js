@@ -1,7 +1,7 @@
 const dbpool = require("../config/dbconfig");
 const { v4: uuidv4 } = require("uuid");
 const getAllLead = () => {
-  const query = `SELECT l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1`;
+  const query = `SELECT l.nama_lead,l.nama_toko,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1`;
   return dbpool.execute(query);
 };
 
@@ -18,21 +18,21 @@ const changePassword = (id_lead, body) => {
 };
 
 const getLeadByIDsales = (id_sales) => {
-  const query = `SELECT l.id_lead,l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1 AND l.id_sales='${id_sales}'`;
+  const query = `SELECT l.id_lead,l.nama_lead,l.nama_toko,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1 AND l.id_sales='${id_sales}'`;
   return dbpool.execute(query);
 };
 
 const updateLead = (id_lead, body) => {
   const {
     nama_lead,
-    nama_perusahaan,
+    nama_toko,
     alamat_lead,
     nohp_lead,
     email_lead,
     long_lead,
     lat_lead,
   } = body;
-  const query = `UPDATE ${process.env.DB_NAME}.lead SET nama_lead='${nama_lead}',nama_perusahaan='${nama_perusahaan}',alamat_lead='${alamat_lead}',nohp_lead='${nohp_lead}',email_lead='${email_lead}' WHERE id_lead = '${id_lead}'`;
+  const query = `UPDATE ${process.env.DB_NAME}.lead SET nama_lead='${nama_lead}',nama_toko='${nama_toko}',alamat_lead='${alamat_lead}',nohp_lead='${nohp_lead}',email_lead='${email_lead}' WHERE id_lead = '${id_lead}'`;
   //,long_lead=${long_lead},lat_lead=${lat_lead}
   return dbpool.execute(query);
 };
@@ -42,7 +42,7 @@ const registerLead = (body) => {
     const {
       nama_lead,
       tgl_lahir_lead,
-      nama_perusahaan,
+      nama_toko,
       alamat_lead,
       detail_alamat,
       lat_lng_lead,
@@ -73,12 +73,12 @@ const registerLead = (body) => {
       ("00" + (date.getMonth() + 1)).slice(-2) +
       "-" +
       ("00" + date.getDate()).slice(-2);
-    const query = `INSERT INTO ${process.env.DB_NAME}.lead(id_lead, nama_lead, tgl_lahir_lead, nama_perusahaan,alamat_lead,detail_alamat, lat_lead,lng_lead,nohp_lead,email_lead,password_lead,tgl_join_lead,id_sales,status,deleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+    const query = `INSERT INTO ${process.env.DB_NAME}.lead(id_lead, nama_lead, tgl_lahir_lead, nama_toko,alamat_lead,detail_alamat, lat_lead,lng_lead,nohp_lead,email_lead,password_lead,tgl_join_lead,tgl_konversi_lead,id_sales,status,deleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
     const data = [
       id_lead,
       nama_lead,
       tgl_lahir,
-      nama_perusahaan,
+      nama_toko,
       alamat_lead,
       detail_alamat,
       lat,
@@ -87,6 +87,7 @@ const registerLead = (body) => {
       email_lead,
       "default",
       temp_date,
+      null,
       id_sales,
       0,
       1,

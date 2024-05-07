@@ -13,12 +13,27 @@ const getAllOrder_detail = () => {
 };
 
 const getOrderSum_by_idOrder = (id_order) => {
-  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.nama_penerima,os.nama_perusahaan_penerima,os.no_telp_penerima,os.id_sales,os.sub_total_order,os.harga_diskon,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nohp_lead,l.nama_lead,l.nama_perusahaan,l.alamat_lead,l.detail_alamat FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_order='${id_order}'`;
+  const query = `SELECT 
+                  os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.nama_penerima,os.nama_toko_penerima,
+                  os.no_telp_penerima,os.id_sales,os.sub_total_order,os.harga_diskon,os.id_lead,os.qty_total,os.total_order,
+                  os.jenis_pembayaran,l.nohp_lead,l.nama_lead,l.nama_toko,l.alamat_lead,l.detail_alamat,s.nama_sales 
+                FROM 
+                  ${process.env.DB_NAME}.order_sum os 
+                JOIN 
+                  ${process.env.DB_NAME}.lead l 
+                ON 
+                  l.id_lead = os.id_lead 
+                JOIN 
+                  ${process.env.DB_NAME}.salesperson s 
+                ON 
+                  s.id_sales=os.id_sales 
+                WHERE 
+                  os.id_order='${id_order}'`;
   return dbpool.execute(query);
 };
 
 const getAllOrder_idsales = (id_sales) => {
-  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_sales='${id_sales}'`;
+  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nama_lead,l.nama_toko FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_sales='${id_sales}'`;
   return dbpool.execute(query);
 };
 
@@ -28,7 +43,7 @@ const getOrder_detail = (id_order) => {
 };
 
 const getOrder_byIdLead = (id_lead) => {
-  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_lead='${id_lead}'`;
+  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nama_lead,l.nama_toko FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_lead='${id_lead}'`;
   return dbpool.execute(query);
 };
 
@@ -52,7 +67,7 @@ const inputOrderSummary = async (body) => {
       id_lead,
       tanggal_kirim,
       nama_penerima,
-      nama_perusahaan_penerima,
+      nama_toko_penerima,
       alamat_kirim,
       no_telp_penerima,
       jenis_pembayaran,
@@ -90,13 +105,13 @@ const inputOrderSummary = async (body) => {
       harga_diskon && harga_diskon != "" && harga_diskon != null
         ? parseInt(harga_diskon)
         : 0;
-    const query1 = `INSERT INTO ${process.env.DB_NAME}.order_sum(id_order, tanggal_order,tanggal_kirim,nama_penerima,nama_perusahaan_penerima,alamat_kirim,no_telp_penerima, id_sales, id_lead, qty_total,sub_total_order,harga_diskon ,total_order, jenis_pembayaran,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+    const query1 = `INSERT INTO ${process.env.DB_NAME}.order_sum(id_order, tanggal_order,tanggal_kirim,nama_penerima,nama_toko_penerima,alamat_kirim,no_telp_penerima, id_sales, id_lead, qty_total,sub_total_order,harga_diskon ,total_order, jenis_pembayaran,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
     const result1 = await connection.query(query1, [
       id_order,
       temp_date,
       tgl_kirim,
       nama_penerima,
-      nama_perusahaan_penerima,
+      nama_toko_penerima,
       alamat_kirim,
       no_telp_penerima,
       id_sales,
@@ -122,8 +137,16 @@ const inputOrderSummary = async (body) => {
     });
     const query2 = `INSERT INTO ${process.env.DB_NAME}.order_detail(id_order_detail, id_order, id_barang, nama_barang, harga_barang_order, qty_barang, sub_total, catatan_order) VALUES ?`;
     const result2 = await connection.query(query2, [order_details]);
-    const query3 = `UPDATE ${process.env.DB_NAME}.lead set status=1 where id_lead='${id_lead}'`;
-    await connection.query(query3);
+    const cekstatus = `SELECT status FROM ${process.env.DB_NAME}.lead WHERE id_lead='${id_lead}'`;
+    const cekstatusresult = await connection.query(cekstatus);
+    if (parseInt(cekstatusresult[0][0].status) == 0) {
+      const query3 = `UPDATE ${
+        process.env.DB_NAME
+      }.lead set status=1,tgl_konversi_lead='${moment("2024-04-23").format(
+        "YYYY-MM-DD"
+      )}' where id_lead='${id_lead}'`;
+      await connection.query(query3);
+    }
     for (let i = 0; i < body.detail.length; i++) {
       const query4 = `UPDATE ${process.env.DB_NAME}.barang set qty_terjual = qty_terjual+${body.detail[i].qty_barang} WHERE id_barang='${body.detail[i].id_barang}'`;
       await connection.query(query4);
@@ -142,7 +165,7 @@ const daftarPesanan = async (body) => {
   const connection = await dbpool.getConnection();
   try {
     await connection.beginTransaction();
-    const { id_sales, id_lead, status } = body;
+    const { id_sales, id_lead } = body;
     const id_cart = uuidv4();
     let total = 0;
     let qty_temp = 0;
@@ -160,14 +183,13 @@ const daftarPesanan = async (body) => {
         sub_total,
       ];
     });
-    const query1 = `INSERT INTO ${process.env.DB_NAME}.cart(id_cart, id_sales,id_lead, qty_total, harga_total, status) VALUES (?,?,?,?,?,?)`;
+    const query1 = `INSERT INTO ${process.env.DB_NAME}.cart(id_cart, id_sales,id_lead, qty_total, harga_total) VALUES (?,?,?,?,?)`;
     const result1 = await connection.query(query1, [
       id_cart,
       id_sales,
       id_lead,
       qty_temp,
       total,
-      status,
     ]);
     const query2 = `INSERT INTO ${process.env.DB_NAME}.cart_detail(id_cart_detail, id_cart, id_barang, nama_barang, harga_barang, qty_barang, sub_total) VALUES ?`;
     const result2 = await connection.query(query2, [cart_details]);
@@ -182,7 +204,7 @@ const daftarPesanan = async (body) => {
 };
 
 const getDaftarpesanan_idsales = (id_sales, id_lead) => {
-  const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_perusahaan FROM ${process.env.DB_NAME}.cart dp JOIN ${process.env.DB_NAME}.cart_detail dpd ON dp.id_cart=dpd.id_cart JOIN ${process.env.DB_NAME}.barang b ON b.id_barang=dpd.id_barang JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
+  const query = `SELECT dp.id_cart,dp.id_sales,dp.id_lead,dp.qty_total,dp.harga_total,dpd.id_cart_detail,dpd.id_barang,dpd.nama_barang,dpd.harga_barang,dpd.qty_barang,dpd.sub_total, b.gambar1_barang,l.nama_lead,l.nama_toko FROM ${process.env.DB_NAME}.cart dp JOIN ${process.env.DB_NAME}.cart_detail dpd ON dp.id_cart=dpd.id_cart JOIN ${process.env.DB_NAME}.barang b ON b.id_barang=dpd.id_barang JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = dp.id_lead WHERE dp.id_sales = '${id_sales}' AND dp.id_lead='${id_lead}'`;
   return dbpool.execute(query);
 };
 
