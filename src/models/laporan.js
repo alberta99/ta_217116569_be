@@ -33,16 +33,16 @@ const getAllSales = () => {
   COUNT(DISTINCT j.id_jadwal) AS jadwal, 
   COUNT(DISTINCT o.id_order) AS penjualan,
   COUNT(DISTINCT l.id_lead) AS jumlah_lead
-FROM 
-  ${process.env.DB_NAME}.salesperson s 
-LEFT JOIN 
-  ${process.env.DB_NAME}.jadwal j ON j.id_sales = s.id_sales 
-LEFT JOIN 
-  ${process.env.DB_NAME}.order_sum o ON o.id_sales = s.id_sales 
-LEFT JOIN 
-  ${process.env.DB_NAME}.lead l ON l.id_sales = s.id_sales 
-GROUP BY 
-  s.id_sales, s.tgl_join_sales, s.nama_sales, s.alamat_sales, s.nohp_sales, s.email_sales, s.password_sales;
+  FROM 
+    ${process.env.DB_NAME}.salesperson s 
+  LEFT JOIN 
+    ${process.env.DB_NAME}.jadwal j ON j.id_sales = s.id_sales 
+  LEFT JOIN 
+    ${process.env.DB_NAME}.order_sum o ON o.id_sales = s.id_sales 
+  LEFT JOIN 
+    ${process.env.DB_NAME}.lead l ON l.id_sales = s.id_sales 
+  GROUP BY 
+    s.id_sales, s.tgl_join_sales, s.nama_sales, s.alamat_sales, s.nohp_sales, s.email_sales, s.password_sales;
 `;
   return dbpool.execute(query);
 };

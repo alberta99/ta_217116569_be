@@ -12,6 +12,11 @@ const getAllOrder_detail = () => {
   return dbpool.execute(query);
 };
 
+const getOrderByRangeTanggal = (tanggal_start, tanggal_end, id_sales) => {
+  const query = `SELECT * FROM ${process.env.DB_NAME}.order_sum WHERE tanggal_order >= ${tanggal_start} AND tanggal_order <= ${tanggal_end} AND id_sales=${id_sales}`;
+  return dbpool.execute(query);
+};
+
 const getOrderSum_by_idOrder = (id_order) => {
   const query = `SELECT 
                   os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.nama_penerima,os.nama_toko_penerima,
@@ -76,31 +81,13 @@ const inputOrderSummary = async (body) => {
       harga_diskon,
     } = body;
     const date = new Date();
-    const temp_date =
-      date.getFullYear() +
-      "-" +
-      ("00" + (date.getMonth() + 1)).slice(-2) +
-      "-" +
-      ("00" + date.getDate()).slice(-2) +
-      "-" +
-      ("00" + date.getHours()).slice(-2) +
-      ":" +
-      ("00" + date.getMinutes()).slice(-2) +
-      ":" +
-      ("00" + date.getSeconds()).slice(-2);
+    const temp_date = moment(date).format("YYYY-MM-DD hh:mm:ss");
     const id_order = `INV-${("00" + date.getDate()).slice(-2)}${(
       "00" +
       (date.getMonth() + 1)
     ).slice(-2)}${date.getFullYear()}-${paddingCount(count + 1, 4)}`;
-    //tanggal kirim
     const date2 = new Date(tanggal_kirim);
-    const tgl_kirim =
-      date2.getFullYear() +
-      "-" +
-      ("00" + (date2.getMonth() + 1)).slice(-2) +
-      "-" +
-      ("00" + date2.getDate()).slice(-2);
-    //details
+    const tgl_kirim = moment(date2).format("YYYY-MM-DD");
     const temp_diskon =
       harga_diskon && harga_diskon != "" && harga_diskon != null
         ? parseInt(harga_diskon)
@@ -142,7 +129,7 @@ const inputOrderSummary = async (body) => {
     if (parseInt(cekstatusresult[0][0].status) == 0) {
       const query3 = `UPDATE ${
         process.env.DB_NAME
-      }.lead set status=1,tgl_konversi_lead='${moment("2024-04-23").format(
+      }.lead set status=1,tgl_konversi_lead='${moment(new Date()).format(
         "YYYY-MM-DD"
       )}' where id_lead='${id_lead}'`;
       await connection.query(query3);

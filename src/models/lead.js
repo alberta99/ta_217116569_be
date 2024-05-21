@@ -1,5 +1,6 @@
 const dbpool = require("../config/dbconfig");
 const { v4: uuidv4 } = require("uuid");
+var moment = require("moment");
 const getAllLead = () => {
   const query = `SELECT l.nama_lead,l.nama_toko,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1`;
   return dbpool.execute(query);
@@ -51,28 +52,12 @@ const registerLead = (body) => {
       id_sales,
     } = body;
     const tgl_join_temp = new Date();
-    const temp_date =
-      tgl_join_temp.getFullYear() +
-      "-" +
-      ("00" + (tgl_join_temp.getMonth() + 1)).slice(-2) +
-      "-" +
-      ("00" + tgl_join_temp.getDate()).slice(-2) +
-      " " +
-      ("00" + tgl_join_temp.getHours()).slice(-2) +
-      ":" +
-      ("00" + tgl_join_temp.getMinutes()).slice(-2) +
-      ":" +
-      ("00" + tgl_join_temp.getSeconds()).slice(-2);
+    const temp_date = moment(tgl_join_temp).format("YYYY-MM-DD hh:mm:ss");
     const id_lead = uuidv4();
     const lat = lat_lng_lead.lat;
     const lng = lat_lng_lead.lng;
     const date = new Date(tgl_lahir_lead);
-    const tgl_lahir =
-      date.getFullYear() +
-      "-" +
-      ("00" + (date.getMonth() + 1)).slice(-2) +
-      "-" +
-      ("00" + date.getDate()).slice(-2);
+    const tgl_lahir = moment(date).format("YYYY-MM-DD");
     const query = `INSERT INTO ${process.env.DB_NAME}.lead(id_lead, nama_lead, tgl_lahir_lead, nama_toko,alamat_lead,detail_alamat, lat_lead,lng_lead,nohp_lead,email_lead,password_lead,tgl_join_lead,tgl_konversi_lead,id_sales,status,deleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
     const data = [
       id_lead,

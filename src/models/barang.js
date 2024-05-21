@@ -72,20 +72,13 @@ const insertBarang = async (body) => {
         1,
         0,
       ];
-
-      // Execute the query
       await connection.query(query, data);
-
-      // Return something indicating success, or just return true
       return true;
     }
   } catch (error) {
-    // Handle the error appropriately, such as logging it
-    console.error("Error inserting barang:", error);
-    // Rethrow the error to propagate it up the call stack
+    console.error("Error insert barang:", error);
     throw error;
   } finally {
-    // Make sure to release the connection back to the pool even if an error occurs
     if (connection) {
       connection.release();
     }
