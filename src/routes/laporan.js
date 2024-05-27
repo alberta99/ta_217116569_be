@@ -20,5 +20,14 @@ router.get(
   "/conversionratebysales",
   laporanController.getConversionRateBySales
 );
+router.get(
+  "/laporansalesperson/:tglstart/:tglend",
+  laporanController.getLaporanSalesperson
+);
+
+router.get(
+  "/konversibysalestanggal/:tglstart/:tglend",
+  laporanController.getConversionRateBySalesdanTanggal
+);
 
 module.exports = router;

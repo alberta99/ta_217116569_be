@@ -15,6 +15,22 @@ const getAllOrder_detail = async (req, res) => {
   }
 };
 
+const updateStatus = async (req, res) => {
+  try {
+    const id_order = req.params.id_order;
+    const [data] = await orderModel.updateStatus(id_order);
+    return res.json({
+      message: "Update status success",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
 const getOrder_detail = async (req, res) => {
   const id_order = req.params.id_order;
   try {
@@ -128,7 +144,13 @@ const countDaftarpesanan = async (req, res) => {
 const countPesananTerproses = async (req, res) => {
   try {
     const id_sales = req.params.id_sales;
-    const data = await orderModel.countPesananTerproses(id_sales);
+    const tgl_start = req.params.tgl_start;
+    const tgl_end = req.params.tgl_end;
+    const data = await orderModel.countPesananTerproses(
+      id_sales,
+      tgl_start,
+      tgl_end
+    );
     return res.json({
       message: "Get count pesanan terproses sukses",
       data: data[0][0],
@@ -347,4 +369,5 @@ module.exports = {
   countPesananTerproses,
   countOrderperhari,
   getOrder_byIdLead,
+  updateStatus,
 };

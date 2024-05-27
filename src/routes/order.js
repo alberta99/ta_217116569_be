@@ -34,7 +34,10 @@ router.delete(
 
 router.get("/count/:id_sales", OrderController.countDaftarpesanan);
 router.get("/countselesai/:id_sales", OrderController.countPesananSelesai);
-router.get("/countterproses/:id_sales", OrderController.countPesananTerproses);
+router.get(
+  "/countterproses/:id_sales/:tgl_start/:tgl_end",
+  OrderController.countPesananTerproses
+);
 router.get(
   "/countperhari/:id_sales/:tgl_start/:tgl_end",
   OrderController.countOrderperhari
@@ -46,5 +49,7 @@ router.get("/detailorder/:id_order", OrderController.getOrder_detail);
 router.get("/ordersumbyid/:id_order", OrderController.getOrderSum_by_idOrder);
 
 router.get("/orderbyidlead/:id_lead", OrderController.getOrder_byIdLead);
+
+router.put("/updatestatus/:id_order", OrderController.updateStatus);
 
 module.exports = router;

@@ -10,5 +10,6 @@ router.get(
   "/tanggalidsales/:id_sales/:tanggal",
   jadwalController.getJadwalByTanggalidSales
 );
+router.get("/gettoday/:id_sales", jadwalController.getJadwalByIDsalesToday);
 
 module.exports = router;

@@ -2,13 +2,24 @@ const dbpool = require("../config/dbconfig");
 const { v4: uuidv4 } = require("uuid");
 var moment = require("moment");
 const getAllLead = () => {
-  const query = `SELECT l.nama_lead,l.nama_toko,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1`;
+  const query = `SELECT l.id_lead,l.nama_lead,l.nama_toko,l.alamat_lead,l.nohp_lead,l.email_lead,l.tgl_join_lead,l.id_sales, s.nama_sales, l.status FROM ${process.env.DB_NAME}.lead l JOIN ${process.env.DB_NAME}.salesperson s ON l.id_sales=s.id_sales where l.deleted = 1`;
   return dbpool.execute(query);
 };
 
-//kenapa error
 const getLeadByID = (id_lead) => {
   const query = `SELECT * FROM ${process.env.DB_NAME}.lead WHERE id_lead='${id_lead}'`;
+  return dbpool.execute(query);
+};
+
+const countLeadByidSales = (id_sales) => {
+  const query = `SELECT 
+      COUNT(CASE WHEN status = '0' THEN 1 END) AS lead_count,
+      COUNT(CASE WHEN status = '1' THEN 1 END) AS customer_count
+    FROM 
+      ${process.env.DB_NAME}.lead
+    WHERE
+      id_sales='${id_sales}';
+  `;
   return dbpool.execute(query);
 };
 
@@ -32,9 +43,20 @@ const updateLead = (id_lead, body) => {
     email_lead,
     long_lead,
     lat_lead,
+    password_lead,
   } = body;
-  const query = `UPDATE ${process.env.DB_NAME}.lead SET nama_lead='${nama_lead}',nama_toko='${nama_toko}',alamat_lead='${alamat_lead}',nohp_lead='${nohp_lead}',email_lead='${email_lead}' WHERE id_lead = '${id_lead}'`;
-  //,long_lead=${long_lead},lat_lead=${lat_lead}
+  const query = ` UPDATE ${process.env.DB_NAME}.lead 
+  SET 
+    nama_lead='${nama_lead}',
+    nama_toko='${nama_toko}',
+    alamat_lead='${alamat_lead}',
+    nohp_lead='${nohp_lead}',
+    email_lead='${email_lead}',
+    lng_lead=${long_lead},
+    lat_lead=${lat_lead},
+    password_lead='${password_lead}'
+  WHERE 
+    id_lead='${id_lead}'`;
   return dbpool.execute(query);
 };
 
@@ -88,6 +110,11 @@ const deleteLead = (id_lead) => {
   return dbpool.execute(query);
 };
 
+const loginLead = (email, password) => {
+  const query = `select * from ${process.env.DB_NAME}.lead where email_lead = '${email}' AND password_lead = '${password}'`;
+  return dbpool.execute(query);
+};
+
 module.exports = {
   getAllLead,
   registerLead,
@@ -96,4 +123,6 @@ module.exports = {
   deleteLead,
   getLeadByIDsales,
   changePassword,
+  loginLead,
+  countLeadByidSales,
 };

@@ -9,7 +9,7 @@ cloudinary.config({
 const getAllBarang = async () => {
   const connection = await dbpool.getConnection();
   try {
-    const query = `SELECT * FROM ${process.env.DB_NAME}.barang where deleted = 1`;
+    const query = `SELECT * FROM ${process.env.DB_NAME}.barang where deleted = 0`;
     var data = connection.query(query);
   } catch (error) {
     console.log(error);
@@ -69,7 +69,7 @@ const insertBarang = async (body) => {
         gambar_1_barang,
         gambar_2_barang,
         gambar_3_barang,
-        1,
+        0,
         0,
       ];
       await connection.query(query, data);
@@ -128,7 +128,7 @@ const updateBarang = async (id_barang, body) => {
 
 const deleteBarang = async (id_barang) => {
   const connection = await dbpool.getConnection();
-  const query = `UPDATE ${process.env.DB_NAME}.barang SET deleted = 0 WHERE id_barang = '${id_barang}' AND deleted = 1`;
+  const query = `UPDATE ${process.env.DB_NAME}.barang SET deleted = 1 WHERE id_barang = '${id_barang}' AND deleted = 0`;
   var execute = connection.query(query);
   connection.release();
   return execute;

@@ -3,17 +3,17 @@ const { v4: uuidv4 } = require("uuid");
 const moment = require("moment");
 
 const getAllOrder_sum = () => {
-  const query = `SELECT * FROM ${process.env.DB_NAME}.order_sum`;
+  const query = `SELECT * FROM ${process.env.DB_NAME}.order_sum ORDER BY tanggal_order DESC`;
+  return dbpool.execute(query);
+};
+
+const updateStatus = (id_order) => {
+  const query = `update ${process.env.DB_NAME}.order_sum set status=1 WHERE id_order='${id_order}'`;
   return dbpool.execute(query);
 };
 
 const getAllOrder_detail = () => {
   const query = `SELECT * FROM ${process.env.DB_NAME}.order_detail`;
-  return dbpool.execute(query);
-};
-
-const getOrderByRangeTanggal = (tanggal_start, tanggal_end, id_sales) => {
-  const query = `SELECT * FROM ${process.env.DB_NAME}.order_sum WHERE tanggal_order >= ${tanggal_start} AND tanggal_order <= ${tanggal_end} AND id_sales=${id_sales}`;
   return dbpool.execute(query);
 };
 
@@ -38,7 +38,7 @@ const getOrderSum_by_idOrder = (id_order) => {
 };
 
 const getAllOrder_idsales = (id_sales) => {
-  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nama_lead,l.nama_toko FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_sales='${id_sales}'`;
+  const query = `SELECT os.id_order,os.tanggal_order,os.tanggal_kirim,os.alamat_kirim,os.id_sales,os.id_lead,os.qty_total,os.total_order,os.jenis_pembayaran,l.nama_lead,l.nama_toko FROM ${process.env.DB_NAME}.order_sum os JOIN ${process.env.DB_NAME}.lead l ON l.id_lead = os.id_lead WHERE os.id_sales='${id_sales}' ORDER BY DATE(os.tanggal_order) DESC`;
   return dbpool.execute(query);
 };
 
@@ -81,7 +81,7 @@ const inputOrderSummary = async (body) => {
       harga_diskon,
     } = body;
     const date = new Date();
-    const temp_date = moment(date).format("YYYY-MM-DD hh:mm:ss");
+    const temp_date = moment(date).format("YYYY-MM-DD HH:mm:ss");
     const id_order = `INV-${("00" + date.getDate()).slice(-2)}${(
       "00" +
       (date.getMonth() + 1)
@@ -200,8 +200,12 @@ const countDaftarpesanan = (id_sales) => {
   return dbpool.execute(query);
 };
 
-const countPesananTerproses = (id_sales) => {
-  const query = `SELECT COUNT(*) as jml from ${process.env.DB_NAME}.order_sum WHERE id_sales = '${id_sales}' AND status=0`;
+const countPesananTerproses = (id_sales, tanggal_start, tanggal_end) => {
+  const query = `SELECT COUNT(*) as jml 
+  FROM ${process.env.DB_NAME}.order_sum 
+  WHERE id_sales = '${id_sales}' 
+  AND status = 0 
+  AND DATE(tanggal_order) BETWEEN '${tanggal_start}' AND '${tanggal_end}'`;
   return dbpool.execute(query);
 };
 
@@ -416,4 +420,5 @@ module.exports = {
   countPesananTerproses,
   countOrderperhari,
   getOrder_byIdLead,
+  updateStatus,
 };

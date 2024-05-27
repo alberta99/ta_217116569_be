@@ -16,6 +16,45 @@ const getAllLead = async (req, res) => {
   }
 };
 
+const countLeadByidSales = async (req, res) => {
+  const id_sales = req.params.id_sales;
+  try {
+    const [data] = await leadModel.countLeadByidSales(id_sales);
+    return res.json({
+      message: "Get Count lead success",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error.message,
+    });
+  }
+};
+
+const loginLead = async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  try {
+    const lead = await leadModel.loginLead(email, password);
+    const data = lead[0][0];
+    if (!data) {
+      return res.status(400).json({
+        message: "Login Gagal",
+      });
+    }
+    return res.json({
+      message: "Login Berhasil",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Login Error",
+      serverMessage: error,
+    });
+  }
+};
+
 const changePassword = async (req, res) => {
   try {
     const { body } = req;
@@ -118,4 +157,6 @@ module.exports = {
   deleteLead,
   getLeadByIDsales,
   changePassword,
+  loginLead,
+  countLeadByidSales,
 };

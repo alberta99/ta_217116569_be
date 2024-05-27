@@ -21,4 +21,8 @@ router.put("/", LeadController.updateLead);
 
 router.put("/changepassword/:id_lead", LeadController.changePassword);
 
+router.post("/login", LeadController.loginLead);
+
+router.get("/countlead/:id_sales", LeadController.countLeadByidSales);
+
 module.exports = router;

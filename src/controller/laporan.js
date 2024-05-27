@@ -38,6 +38,23 @@ const getAllSales = async (req, res) => {
   }
 };
 
+const getLaporanSalesperson = async (req, res) => {
+  try {
+    const tgl_start = req.params.tglstart;
+    const tgl_end = req.params.tglend;
+    const data = await laporanModel.getLaporanSalesperson(tgl_start, tgl_end);
+    res.json({
+      message: "Get All Salesperson Sukses",
+      data: data[0],
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
 const getAllOrder = async (req, res) => {
   try {
     const [data] = await laporanModel.getAllOrder();
@@ -73,9 +90,44 @@ const getConversionRate = async (req, res) => {
   }
 };
 
+// const getConversionRateByTanggal = async (req, res) => {
+//   try {
+//     const data = await laporanModel.getConversionRatebyTanggal();
+//     res.json({
+//       message: "Get Conversion Sukses",
+//       data: data[0],
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Server error",
+//       serverMessage: error,
+//     });
+//   }
+// };
+
 const getConversionRateBySales = async (req, res) => {
   try {
     const [data] = await laporanModel.getConversionRateBySales();
+    res.json({
+      message: "Get Conversion Sukses",
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
+const getConversionRateBySalesdanTanggal = async (req, res) => {
+  try {
+    const tgl_start = req.params.tglstart;
+    const tgl_end = req.params.tglend;
+    const [data] = await laporanModel.getConversionRateBySalesdanTanggal(
+      tgl_start,
+      tgl_end
+    );
     res.json({
       message: "Get Conversion Sukses",
       data: data,
@@ -109,10 +161,12 @@ const getAllOrderByTanggal = async (req, res) => {
 };
 
 module.exports = {
+  getLaporanSalesperson,
   getLaporanLeadMasuk,
   getAllSales,
   getAllOrder,
   getAllOrderByTanggal,
   getConversionRate,
   getConversionRateBySales,
+  getConversionRateBySalesdanTanggal,
 };

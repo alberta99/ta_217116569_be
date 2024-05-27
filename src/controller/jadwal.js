@@ -49,6 +49,39 @@ const getJadwalByIDsales = async (req, res) => {
   }
 };
 
+const getJadwalByIDsalesToday = async (req, res) => {
+  const id_sales = req.params.id_sales;
+  var idLocale = require("moment/locale/id");
+  moment.locale("id,", idLocale);
+  try {
+    const data = await jadwalModel.getJadwalByIDsalesToday(id_sales);
+    const jadwal = data[0];
+    if (!jadwal) {
+      return res.status(404).json({
+        message: "Jadwal Tidak Ada",
+        data: null,
+      });
+    }
+    return res.json({
+      message: "Get Jadwal Today By ID Sales Sukses",
+      data: jadwal.map((item) => {
+        return {
+          ...item,
+          tanggal_kunjungan: moment(item.tanggal_kunjungan)
+            .locale("id")
+            .format("LLLL"),
+        };
+      }),
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Server error",
+      serverMessage: error,
+    });
+  }
+};
+
 const getJadwalByIDJadwal = async (req, res) => {
   const idjadwal = req.params.idjadwal;
   try {
@@ -111,4 +144,5 @@ module.exports = {
   getJadwalByIDsales,
   getJadwalByIDJadwal,
   getJadwalByTanggalidSales,
+  getJadwalByIDsalesToday,
 };
